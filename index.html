@@ -861,6 +861,7 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
 }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+<base target="_blank">
 </head>
 <body>
 <button class="mobile-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
@@ -1561,6 +1562,16 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
             </div>
         </div>
 
+            <!-- Achievements Section -->
+            <div class="faq-section" style="margin-bottom: 24px;">
+                <div class="faq-header">
+                    <h2><i class="fas fa-trophy" style="color:var(--turquesa);margin-right:8px;"></i>Conquistas</h2>
+                    <p>Reconhecimentos pelo seu progresso na plataforma.</p>
+                </div>
+                <div id="achievementsContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
 <!-- ==================== CERTIFICADOS ==================== -->
         <div class="page-section" id="page-certificados">
             <div class="page-header">
@@ -1881,11 +1892,11 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
                     <p>Conheça a história, cultura, valores e estrutura da Canopus Construtora. Essa trilha prepara você para integrar-se com excelência à nossa equipe.</p>
                     <div class="hero-stats">
                         <div class="hero-stat">
-                            <div class="number">9</div>
+                            <div class="number">4</div>
                             <div class="label">Módulos</div>
                         </div>
                         <div class="hero-stat">
-                            <div class="number">6h</div>
+                            <div class="number">3h</div>
                             <div class="label">Carga horária</div>
                         </div>
                         <div class="hero-stat">
@@ -1903,12 +1914,31 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
                 <div class="progress-bar">
                     <div class="progress-fill" id="onboarding-fill" style="width:0%"></div>
                 </div>
+                <div class="progress-steps" id="onboarding-steps" style="margin-top:16px;">
+                    <div class="progress-step" id="step-onb-1">
+                        <div class="progress-step-dot">1</div>
+                        <div class="progress-step-label">Boas-vindas</div>
+                    </div>
+                    <div class="progress-step" id="step-onb-2">
+                        <div class="progress-step-dot">2</div>
+                        <div class="progress-step-label">Organograma</div>
+                    </div>
+                    <div class="progress-step" id="step-onb-3">
+                        <div class="progress-step-dot">3</div>
+                        <div class="progress-step-label">Nosso Jeito de Ser</div>
+                    </div>
+                    <div class="progress-step" id="step-onb-4">
+                        <div class="progress-step-dot">4</div>
+                        <div class="progress-step-label">Guia do Cliente</div>
+                    </div>
+                </div>
             </div>
             <h2 style="font-family:'Oswald',sans-serif;font-size:22px;color:var(--azul-escuro);margin-bottom:20px;">
                 <i class="fas fa-list-ol" style="color:var(--turquesa);margin-right:8px;"></i>Módulos da Trilha
             </h2>
             <div class="cards-grid" id="onboarding-modules">
-                <div class="card animate-in delay-1" onclick="navigateTo('mod-onboarding-1')">
+                <!-- Module 1: Boas-vindas - Always unlocked -->
+                <div class="card animate-in delay-1" id="card-onb-1" onclick="navigateTo('mod-onboarding-1')">
                     <div class="card-icon-main turquesa"><i class="fas fa-hand-sparkles"></i></div>
                     <h3>1. Boas-vindas</h3>
                     <p>Apresentação da empresa, equipe e expectativas para sua jornada na Canopus Construtora.</p>
@@ -1916,110 +1946,52 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
                         <span class="card-count"><i class="fas fa-clock"></i> 30 min</span>
                         <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
                     </div>
-                    <button class="complete-btn" id="btn-complete-mod-onboarding-1" onclick="event.stopPropagation();markComplete('mod-onboarding-1')">
+                    <button class="complete-btn" id="btn-complete-mod-onboarding-1" onclick="event.stopPropagation();markCompleteOnboarding('mod-onboarding-1')">
                         <i class="fas fa-check"></i> Marcar como concluído
                     </button>
                 </div>
-                <div class="card animate-in delay-2" onclick="navigateTo('mod-onboarding-2')">
-                    <div class="card-icon-main azul"><i class="fas fa-landmark"></i></div>
-                    <h3>2. História da Empresa</h3>
-                    <p>Trajetória, marcos e conquistas que construíram a Canopus Construtora.</p>
+                <!-- Module 2: Organograma - Locked until module 1 completed -->
+                <div class="card animate-in delay-2 locked" id="card-onb-2" onclick="handleLockedModule(2)">
+                    <div class="card-icon-main azul"><i class="fas fa-sitemap"></i></div>
+                    <h3>2. Organograma</h3>
+                    <p>Conheça a estrutura organizacional da Canopus, departamentos, hierarquia e fluxos de comunicação interna.</p>
                     <div class="card-footer">
                         <span class="card-count"><i class="fas fa-clock"></i> 45 min</span>
-                        <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
+                        <div class="card-arrow"><i class="fas fa-lock"></i></div>
                     </div>
-                    <button class="complete-btn" id="btn-complete-mod-onboarding-2" onclick="event.stopPropagation();markComplete('mod-onboarding-2')">
-                        <i class="fas fa-check"></i> Marcar como concluído
+                    <button class="complete-btn" id="btn-complete-mod-onboarding-2" onclick="event.stopPropagation();markCompleteOnboarding('mod-onboarding-2')" disabled style="opacity:0.5;cursor:not-allowed;">
+                        <i class="fas fa-lock"></i> Bloqueado
                     </button>
                 </div>
-                <div class="card animate-in delay-3" onclick="navigateTo('mod-onboarding-3')">
+                <!-- Module 3: Nosso Jeito de Ser - Locked until module 2 completed -->
+                <div class="card animate-in delay-3 locked" id="card-onb-3" onclick="handleLockedModule(3)">
                     <div class="card-icon-main verde"><i class="fas fa-heart"></i></div>
-                    <h3>3. Cultura e Valores</h3>
-                    <p>Os princípios que norteiam nossas decisões e relacionamentos.</p>
+                    <h3>3. Nosso Jeito de Ser</h3>
+                    <p>Cultura, valores, princípios éticos e o comportamento que esperamos de cada colaborador.</p>
                     <div class="card-footer">
                         <span class="card-count"><i class="fas fa-clock"></i> 40 min</span>
-                        <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
+                        <div class="card-arrow"><i class="fas fa-lock"></i></div>
                     </div>
-                    <button class="complete-btn" id="btn-complete-mod-onboarding-3" onclick="event.stopPropagation();markComplete('mod-onboarding-3')">
-                        <i class="fas fa-check"></i> Marcar como concluído
+                    <button class="complete-btn" id="btn-complete-mod-onboarding-3" onclick="event.stopPropagation();markCompleteOnboarding('mod-onboarding-3')" disabled style="opacity:0.5;cursor:not-allowed;">
+                        <i class="fas fa-lock"></i> Bloqueado
                     </button>
                 </div>
-                <div class="card animate-in delay-1" onclick="navigateTo('mod-onboarding-4')">
-                    <div class="card-icon-main laranja"><i class="fas fa-sitemap"></i></div>
-                    <h3>4. Estrutura Organizacional</h3>
-                    <p>Conheça os departamentos, hierarquia e fluxos de comunicação interna.</p>
+                <!-- Module 4: Guia do Cliente - Locked until module 3 completed -->
+                <div class="card animate-in delay-1 locked" id="card-onb-4" onclick="handleLockedModule(4)">
+                    <div class="card-icon-main laranja"><i class="fas fa-book-open"></i></div>
+                    <h3>4. Guia do Cliente</h3>
+                    <p>Entenda o ciclo completo do cliente na Canopus Construtora e como entregamos excelência.</p>
                     <div class="card-footer">
                         <span class="card-count"><i class="fas fa-clock"></i> 35 min</span>
-                        <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
+                        <div class="card-arrow"><i class="fas fa-lock"></i></div>
                     </div>
-                    <button class="complete-btn" id="btn-complete-mod-onboarding-4" onclick="event.stopPropagation();markComplete('mod-onboarding-4')">
-                        <i class="fas fa-check"></i> Marcar como concluído
-                    </button>
-                </div>
-                <div class="card animate-in delay-2" onclick="navigateTo('mod-onboarding-5')">
-                    <div class="card-icon-main roxo"><i class="fas fa-comments"></i></div>
-                    <h3>5. Comunicação Interna</h3>
-                    <p>Canais, ferramentas e boas práticas de comunicação entre as áreas.</p>
-                    <div class="card-footer">
-                        <span class="card-count"><i class="fas fa-clock"></i> 30 min</span>
-                        <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
-                    </div>
-                    <button class="complete-btn" id="btn-complete-mod-onboarding-5" onclick="event.stopPropagation();markComplete('mod-onboarding-5')">
-                        <i class="fas fa-check"></i> Marcar como concluído
-                    </button>
-                </div>
-                <div class="card animate-in delay-3" onclick="navigateTo('mod-onboarding-6')">
-                    <div class="card-icon-main rosa"><i class="fas fa-user-tie"></i></div>
-                    <h3>6. Postura Profissional</h3>
-                    <p>Ética, conduta, vestimenta e comportamento esperado no ambiente corporativo.</p>
-                    <div class="card-footer">
-                        <span class="card-count"><i class="fas fa-clock"></i> 35 min</span>
-                        <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
-                    </div>
-                    <button class="complete-btn" id="btn-complete-mod-onboarding-6" onclick="event.stopPropagation();markComplete('mod-onboarding-6')">
-                        <i class="fas fa-check"></i> Marcar como concluído
-                    </button>
-                </div>
-                <div class="card animate-in delay-1" onclick="navigateTo('mod-onboarding-7')">
-                    <div class="card-icon-main turquesa"><i class="fas fa-laptop-code"></i></div>
-                    <h3>7. Sistemas Utilizados</h3>
-                    <p>Tour pelas ferramentas e sistemas que você utilizará no dia a dia.</p>
-                    <div class="card-footer">
-                        <span class="card-count"><i class="fas fa-clock"></i> 50 min</span>
-                        <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
-                    </div>
-                    <button class="complete-btn" id="btn-complete-mod-onboarding-7" onclick="event.stopPropagation();markComplete('mod-onboarding-7')">
-                        <i class="fas fa-check"></i> Marcar como concluído
-                    </button>
-                </div>
-                <div class="card animate-in delay-2" onclick="navigateTo('mod-onboarding-8')">
-                    <div class="card-icon-main azul"><i class="fas fa-handshake"></i></div>
-                    <h3>8. Jornada do Cliente</h3>
-                    <p>Entenda o ciclo completo do cliente na Canopus Construtora.</p>
-                    <div class="card-footer">
-                        <span class="card-count"><i class="fas fa-clock"></i> 40 min</span>
-                        <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
-                    </div>
-                    <button class="complete-btn" id="btn-complete-mod-onboarding-8" onclick="event.stopPropagation();markComplete('mod-onboarding-8')">
-                        <i class="fas fa-check"></i> Marcar como concluído
-                    </button>
-                </div>
-                <div class="card animate-in delay-3" onclick="navigateTo('mod-onboarding-9')">
-                    <div class="card-icon-main verde"><i class="fas fa-flag-checkered"></i></div>
-                    <h3>9. Encerramento</h3>
-                    <p>Resumo, próximos passos e avaliação do onboarding.</p>
-                    <div class="card-footer">
-                        <span class="card-count"><i class="fas fa-clock"></i> 25 min</span>
-                        <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
-                    </div>
-                    <button class="complete-btn" id="btn-complete-mod-onboarding-9" onclick="event.stopPropagation();markComplete('mod-onboarding-9')">
-                        <i class="fas fa-check"></i> Marcar como concluído
+                    <button class="complete-btn" id="btn-complete-mod-onboarding-4" onclick="event.stopPropagation();markCompleteOnboarding('mod-onboarding-4')" disabled style="opacity:0.5;cursor:not-allowed;">
+                        <i class="fas fa-lock"></i> Bloqueado
                     </button>
                 </div>
             </div>
         </div>
-
-        <!-- ==================== TRILHA: RELACIONAMENTO ==================== -->
+<!-- ==================== TRILHA: RELACIONAMENTO ==================== -->
         <div class="page-section" id="page-trilha-relacionamento">
             <div class="page-header">
                 <span class="badge"><i class="fas fa-heart"></i> Relacionamento</span>
@@ -3031,6 +3003,9 @@ function navigateTo(page) {
         updateCertificates();
     } else if (page === 'user-profile') {
         updateUserProfilePage();
+    } else if (page === 'trilha-onboarding') {
+        updateDashboard();
+        setTimeout(updateOnboardingLocks, 100);
     } else if (page.startsWith('trilha-')) {
         updateDashboard(); // Refresh trail progress
     }
@@ -3123,7 +3098,6 @@ function updateDashboard() {
         'mod1', 'mod2', 'mod3', 'mod4', 'mod5',
         // Onboarding
         'mod-onboarding-1', 'mod-onboarding-2', 'mod-onboarding-3', 'mod-onboarding-4',
-        'mod-onboarding-5', 'mod-onboarding-6', 'mod-onboarding-7', 'mod-onboarding-8', 'mod-onboarding-9',
         // Relacionamento
         'mod-rel-1', 'mod-rel-2', 'mod-rel-3', 'mod-rel-4', 'mod-rel-5',
         'mod-rel-6', 'mod-rel-7', 'mod-rel-8', 'mod-rel-9', 'mod-rel-10',
@@ -3153,7 +3127,7 @@ function updateDashboard() {
 
     // Calculate trail progress
     const trails = {
-        'onboarding': ['mod-onboarding-1','mod-onboarding-2','mod-onboarding-3','mod-onboarding-4','mod-onboarding-5','mod-onboarding-6','mod-onboarding-7','mod-onboarding-8','mod-onboarding-9'],
+        'onboarding': ['mod-onboarding-1','mod-onboarding-2','mod-onboarding-3','mod-onboarding-4'],
         'relacionamento': ['mod-rel-1','mod-rel-2','mod-rel-3','mod-rel-4','mod-rel-5','mod-rel-6','mod-rel-7','mod-rel-8','mod-rel-9','mod-rel-10','mod-astec-1','mod-astec-2','mod-astec-3','mod-astec-4','mod-astec-5','mod-back-1','mod-back-2','mod-back-3','mod-back-4','mod-rec-1','mod-rec-2','mod-rec-3','mod-rec-4','mod-rec-5'],
         'juridico': ['mod-jur-1','mod-jur-2','mod-jur-3','mod-jur-4'],
         'compliance': ['mod-comp-1','mod-comp-2','mod-comp-3','mod-comp-4','mod-comp-5']
@@ -3269,19 +3243,215 @@ function updateModuleButton(moduleId, completed) {
     }
 }
 
+
+
+// ==================== ONBOARDING PROGRESSION SYSTEM ====================
+
+const ONBOARDING_MODULES = ['mod-onboarding-1', 'mod-onboarding-2', 'mod-onboarding-3', 'mod-onboarding-4'];
+
+function handleLockedModule(moduleNum) {
+    showNotification('Módulo bloqueado. Complete o módulo anterior para liberar.', 'warning');
+}
+
+function markCompleteOnboarding(moduleId) {
+    if (!currentUser) {
+        showNotification('Faça login para marcar progresso', 'error');
+        return;
+    }
+
+    // Check if previous module is completed (for modules 2-4)
+    const idx = ONBOARDING_MODULES.indexOf(moduleId);
+    if (idx > 0) {
+        const prevModule = ONBOARDING_MODULES[idx - 1];
+        if (!userProgress[prevModule] || !userProgress[prevModule].completed) {
+            showNotification('Complete o módulo anterior primeiro.', 'error');
+            return;
+        }
+    }
+
+    // Check if already completed
+    if (userProgress[moduleId] && userProgress[moduleId].completed) {
+        if (confirm('Este módulo já está marcado como concluído. Deseja remover a conclusão?')) {
+            delete userProgress[moduleId];
+            localStorage.setItem(CONFIG.STORAGE_PROGRESS + '_' + currentUser.email, JSON.stringify(userProgress));
+            updateOnboardingLocks();
+            updateDashboard();
+            showNotification('Conclusão removida.', 'info');
+        }
+        return;
+    }
+
+    if (!confirm('Deseja marcar este módulo como concluído? Um certificado será gerado automaticamente.')) {
+        return;
+    }
+
+    // Mark as completed
+    userProgress[moduleId] = {
+        completed: true,
+        date: new Date().toISOString()
+    };
+
+    // Save progress
+    localStorage.setItem(CONFIG.STORAGE_PROGRESS + '_' + currentUser.email, JSON.stringify(userProgress));
+
+    // Generate certificate automatically
+    generateOnboardingCertificate(moduleId);
+
+    // Update UI
+    updateOnboardingLocks();
+    updateDashboard();
+
+    // Show success notification
+    const moduleNames = {
+        'mod-onboarding-1': 'Boas-vindas',
+        'mod-onboarding-2': 'Organograma',
+        'mod-onboarding-3': 'Nosso Jeito de Ser',
+        'mod-onboarding-4': 'Guia do Cliente'
+    };
+    showNotification('Módulo "' + moduleNames[moduleId] + '" concluído! Certificado gerado.', 'success');
+    addNotification('Certificado gerado!', 'Você concluiu ' + moduleNames[moduleId] + ' e recebeu um certificado.', 'success');
+    addActivity('module_complete', 'Módulo concluído', 'Onboarding: ' + moduleNames[moduleId]);
+
+    // Unlock next module if exists
+    if (idx < ONBOARDING_MODULES.length - 1) {
+        const nextModule = ONBOARDING_MODULES[idx + 1];
+        const nextName = moduleNames[nextModule];
+        setTimeout(() => {
+            showNotification('🎉 Módulo "' + nextName + '" desbloqueado!', 'success');
+        }, 1500);
+    }
+}
+
+function updateOnboardingLocks() {
+    const moduleNames = {
+        'mod-onboarding-1': 'Boas-vindas',
+        'mod-onboarding-2': 'Organograma',
+        'mod-onboarding-3': 'Nosso Jeito de Ser',
+        'mod-onboarding-4': 'Guia do Cliente'
+    };
+
+    ONBOARDING_MODULES.forEach((modId, idx) => {
+        const card = document.getElementById('card-onb-' + (idx + 1));
+        const btn = document.getElementById('btn-complete-mod-' + modId);
+        const isCompleted = userProgress[modId] && userProgress[modId].completed;
+        const isUnlocked = idx === 0 || (userProgress[ONBOARDING_MODULES[idx - 1]] && userProgress[ONBOARDING_MODULES[idx - 1]].completed);
+
+        if (card) {
+            if (isUnlocked) {
+                card.classList.remove('locked');
+                card.onclick = function() { navigateTo(modId); };
+                const arrow = card.querySelector('.card-arrow');
+                if (arrow) arrow.innerHTML = '<i class="fas fa-arrow-right"></i>';
+            } else {
+                card.classList.add('locked');
+                card.onclick = function() { handleLockedModule(idx + 1); };
+                const arrow = card.querySelector('.card-arrow');
+                if (arrow) arrow.innerHTML = '<i class="fas fa-lock"></i>';
+            }
+
+            if (isCompleted) {
+                card.classList.add('completed');
+            } else {
+                card.classList.remove('completed');
+            }
+        }
+
+        if (btn) {
+            if (isUnlocked) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+                if (isCompleted) {
+                    btn.classList.add('completed');
+                    btn.innerHTML = '<i class="fas fa-check-circle"></i> Concluído (clique para desmarcar)';
+                    btn.onclick = function(e) { e.stopPropagation(); markCompleteOnboarding(modId); };
+                } else {
+                    btn.classList.remove('completed');
+                    btn.innerHTML = '<i class="fas fa-check"></i> Marcar como concluído';
+                    btn.onclick = function(e) { e.stopPropagation(); markCompleteOnboarding(modId); };
+                }
+            } else {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.style.cursor = 'not-allowed';
+                btn.classList.remove('completed');
+                btn.innerHTML = '<i class="fas fa-lock"></i> Bloqueado';
+                btn.onclick = function(e) { e.stopPropagation(); };
+            }
+        }
+
+        // Update progress step
+        const step = document.getElementById('step-onb-' + (idx + 1));
+        if (step) {
+            if (isCompleted) {
+                step.classList.add('completed');
+                step.classList.remove('active');
+            } else if (isUnlocked && !isCompleted) {
+                step.classList.add('active');
+                step.classList.remove('completed');
+            } else {
+                step.classList.remove('active', 'completed');
+            }
+        }
+    });
+
+    // Update progress bar
+    const completedCount = ONBOARDING_MODULES.filter(m => userProgress[m] && userProgress[m].completed).length;
+    const pct = Math.round((completedCount / ONBOARDING_MODULES.length) * 100);
+    const fill = document.getElementById('onboarding-fill');
+    const percent = document.getElementById('onboarding-percent');
+    const progress = document.getElementById('onboarding-progress');
+    if (fill) fill.style.width = pct + '%';
+    if (percent) percent.textContent = pct + '%';
+    if (progress) progress.textContent = pct + '%';
+}
+
+function generateOnboardingCertificate(moduleId) {
+    if (!currentUser) return;
+
+    const moduleNames = {
+        'mod-onboarding-1': { name: 'Boas-vindas', hours: '30min' },
+        'mod-onboarding-2': { name: 'Organograma', hours: '45min' },
+        'mod-onboarding-3': { name: 'Nosso Jeito de Ser', hours: '40min' },
+        'mod-onboarding-4': { name: 'Guia do Cliente', hours: '35min' }
+    };
+
+    const mod = moduleNames[moduleId];
+    if (!mod) return;
+
+    // Save certificate to localStorage
+    const certKey = 're_certs_' + currentUser.email;
+    let certs = JSON.parse(localStorage.getItem(certKey) || '[]');
+
+    // Check if certificate already exists
+    const exists = certs.find(c => c.moduleId === moduleId);
+    if (!exists) {
+        certs.push({
+            moduleId: moduleId,
+            moduleName: mod.name,
+            hours: mod.hours,
+            trail: 'Onboarding Geral',
+            date: new Date().toISOString(),
+            type: 'onboarding'
+        });
+        localStorage.setItem(certKey, JSON.stringify(certs));
+    }
+}
+
+function getOnboardingCertificates() {
+    if (!currentUser) return [];
+    const certKey = 're_certs_' + currentUser.email;
+    return JSON.parse(localStorage.getItem(certKey) || '[]');
+}
+
 function loadModuleContent(moduleId) {
     const moduleData = {
         // Onboarding
         'mod-onboarding-1': { title: 'Boas-vindas', icon: 'fa-hand-sparkles', desc: 'Apresentação da empresa, equipe e expectativas para sua jornada na Canopus Construtora.', trail: 'Onboarding Geral' },
-        'mod-onboarding-2': { title: 'História da Empresa', icon: 'fa-landmark', desc: 'Trajetória, marcos e conquistas que construíram a Canopus Construtora.', trail: 'Onboarding Geral' },
-        'mod-onboarding-3': { title: 'Cultura e Valores', icon: 'fa-heart', desc: 'Os princípios que norteiam nossas decisões e relacionamentos.', trail: 'Onboarding Geral' },
-        'mod-onboarding-4': { title: 'Estrutura Organizacional', icon: 'fa-sitemap', desc: 'Conheça os departamentos, hierarquia e fluxos de comunicação interna.', trail: 'Onboarding Geral' },
-        'mod-onboarding-5': { title: 'Comunicação Interna', icon: 'fa-comments', desc: 'Canais, ferramentas e boas práticas de comunicação entre as áreas.', trail: 'Onboarding Geral' },
-        'mod-onboarding-6': { title: 'Postura Profissional', icon: 'fa-user-tie', desc: 'Ética, conduta, vestimenta e comportamento esperado no ambiente corporativo.', trail: 'Onboarding Geral' },
-        'mod-onboarding-7': { title: 'Sistemas Utilizados', icon: 'fa-laptop-code', desc: 'Tour pelas ferramentas e sistemas que você utilizará no dia a dia.', trail: 'Onboarding Geral' },
-        'mod-onboarding-8': { title: 'Jornada do Cliente', icon: 'fa-handshake', desc: 'Entenda o ciclo completo do cliente na Canopus Construtora.', trail: 'Onboarding Geral' },
-        'mod-onboarding-9': { title: 'Encerramento', icon: 'fa-flag-checkered', desc: 'Resumo, próximos passos e avaliação do onboarding.', trail: 'Onboarding Geral' },
-        // Relacionamento
+        'mod-onboarding-2': { title: 'Organograma', icon: 'fa-sitemap', desc: 'Conheça a estrutura organizacional da Canopus, departamentos, hierarquia e fluxos de comunicação interna.', trail: 'Onboarding Geral' },
+        'mod-onboarding-3': { title: 'Nosso Jeito de Ser', icon: 'fa-heart', desc: 'Cultura, valores, princípios éticos e o comportamento que esperamos de cada colaborador.', trail: 'Onboarding Geral' },
+        'mod-onboarding-4': { title: 'Guia do Cliente', icon: 'fa-book-open', desc: 'Entenda o ciclo completo do cliente na Canopus Construtora e como entregamos excelência.', trail: 'Onboarding Geral' },
+// Relacionamento
         'mod-rel-1': { title: 'Jornada do Cliente', icon: 'fa-route', desc: 'Mapeamento completo da experiência do cliente com a Canopus Construtora.', trail: 'Relacionamento' },
         'mod-rel-2': { title: 'Atendimento Humanizado', icon: 'fa-smile-beam', desc: 'Técnicas de empatia, escuta ativa e conexão genuína com o cliente.', trail: 'Relacionamento' },
         'mod-rel-3': { title: 'Escrita Encantadora', icon: 'fa-pen-fancy', desc: 'Redação de e-mails, mensagens e documentos com tom profissional e acolhedor.', trail: 'Relacionamento' },
@@ -3408,61 +3578,26 @@ const MODULE_CONTENT = {
     },
     'mod-onboarding-2': {
         slides: [
-            { title: 'Fundada em 2008', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
-            { title: 'Marcos Importantes', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
-            { title: 'Reconhecimentos', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' }
+            { title: 'Estrutura Organizacional', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
+            { title: 'Departamentos e Funções', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
+            { title: 'Fluxos de Comunicação', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' }
         ]
     },
     'mod-onboarding-3': {
         slides: [
-            { title: 'Nossos Valores', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
-            { title: 'Cultura de Feedback', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
-            { title: 'Diversidade e Inclusão', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' }
+            { title: 'Cultura e Valores', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
+            { title: 'Nossos Princípios', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
+            { title: 'Comportamento Esperado', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' }
         ]
     },
     'mod-onboarding-4': {
         slides: [
-            { title: 'Estrutura Organizacional', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
-            { title: 'Diretoria de Relacionamento', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
-            { title: 'Canais de Comunicação', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' }
-        ]
-    },
-    'mod-onboarding-5': {
-        slides: [
-            { title: 'Comunicação Interna', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
-            { title: 'Reuniões e Cerimônias', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
-            { title: 'Etiqueta Digital', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' }
-        ]
-    },
-    'mod-onboarding-6': {
-        slides: [
-            { title: 'Postura Profissional', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
-            { title: 'Ética e Conduta', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
-            { title: 'Home Office e Flexibilidade', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' }
-        ]
-    },
-    'mod-onboarding-7': {
-        slides: [
-            { title: 'Sistemas Principais', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
-            { title: 'Segurança da Informação', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
-            { title: 'Suporte Técnico', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' }
-        ]
-    },
-    'mod-onboarding-8': {
-        slides: [
             { title: 'Jornada do Cliente', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
-            { title: 'Nosso Diferencial', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
-            { title: 'Indicadores de Satisfação', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' }
+            { title: 'Ciclo Completo', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
+            { title: 'Excelência no Atendimento', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' }
         ]
     },
-    'mod-onboarding-9': {
-        slides: [
-            { title: 'Parabéns!', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
-            { title: 'Próximos Passos', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
-            { title: 'Você faz a diferença', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' }
-        ]
-    },
-    // Relacionamento
+// Relacionamento
     'mod-rel-1': {
         slides: [
             { title: 'Jornada do Cliente Canopus', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
@@ -3728,7 +3863,7 @@ function updateAdminDashboard() {
     let totalCompleted = 0;
     let totalProgress = 0;
     let totalCerts = 0;
-    const totalModules = 42; // All modules across all trails
+    const totalModules = 37; // All modules across all trails
 
     allUsers.forEach(user => {
         const progress = localStorage.getItem(CONFIG.STORAGE_PROGRESS + '_' + user.email);
@@ -3842,14 +3977,9 @@ function updateCertificates() {
         { id: 'mod5', name: 'Gestão e Liderança', hours: '2h', trail: 'Relacionamento (Legado)' },
         // Onboarding
         { id: 'mod-onboarding-1', name: 'Boas-vindas', hours: '30min', trail: 'Onboarding Geral' },
-        { id: 'mod-onboarding-2', name: 'História da Empresa', hours: '45min', trail: 'Onboarding Geral' },
-        { id: 'mod-onboarding-3', name: 'Cultura e Valores', hours: '40min', trail: 'Onboarding Geral' },
-        { id: 'mod-onboarding-4', name: 'Estrutura Organizacional', hours: '35min', trail: 'Onboarding Geral' },
-        { id: 'mod-onboarding-5', name: 'Comunicação Interna', hours: '30min', trail: 'Onboarding Geral' },
-        { id: 'mod-onboarding-6', name: 'Postura Profissional', hours: '35min', trail: 'Onboarding Geral' },
-        { id: 'mod-onboarding-7', name: 'Sistemas Utilizados', hours: '50min', trail: 'Onboarding Geral' },
-        { id: 'mod-onboarding-8', name: 'Jornada do Cliente', hours: '40min', trail: 'Onboarding Geral' },
-        { id: 'mod-onboarding-9', name: 'Encerramento', hours: '25min', trail: 'Onboarding Geral' },
+        { id: 'mod-onboarding-2', name: 'Organograma', hours: '45min', trail: 'Onboarding Geral' },
+        { id: 'mod-onboarding-3', name: 'Nosso Jeito de Ser', hours: '40min', trail: 'Onboarding Geral' },
+        { id: 'mod-onboarding-4', name: 'Guia do Cliente', hours: '35min', trail: 'Onboarding Geral' },
         // Relacionamento
         { id: 'mod-rel-1', name: 'Jornada do Cliente', hours: '45min', trail: 'Relacionamento' },
         { id: 'mod-rel-2', name: 'Atendimento Humanizado', hours: '50min', trail: 'Relacionamento' },
@@ -3913,7 +4043,27 @@ function updateCertificates() {
         }
     });
 
-    if (hasCerts) {
+    // Add onboarding certificates from the new certificate system
+    const onboardingCerts = getOnboardingCertificates();
+    if (onboardingCerts && onboardingCerts.length > 0) {
+        hasCerts = true;
+        onboardingCerts.forEach(cert => {
+            htmlCerts += `
+                <div class="cert-card">
+                    <div class="cert-badge"><i class="fas fa-award"></i></div>
+                    <h3>${cert.moduleName}</h3>
+                    <div class="cert-date" style="font-size:11px;color:var(--cinza);margin-bottom:4px;">${cert.trail}</div>
+                    <div class="cert-date">Concluído em ${new Date(cert.date).toLocaleDateString('pt-BR')}</div>
+                    <div class="cert-hours"><i class="fas fa-clock"></i> ${cert.hours} de estudo</div>
+                    <div class="cert-actions">
+                        <button class="primary" onclick="previewCertificate('${cert.moduleName}', '${cert.hours}')"><i class="fas fa-eye"></i> Visualizar</button>
+                        <button onclick="downloadCertificate('${cert.moduleName}')"><i class="fas fa-download"></i> Baixar</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+if (hasCerts) {
         container.innerHTML = htmlCerts;
     } else {
         container.innerHTML = '';
@@ -4264,7 +4414,11 @@ async function renderModuleFiles(moduleId) {
         'mod2': 'Módulo 2: Comunicação',
         'mod3': 'Módulo 3: SAC e Ouvidoria',
         'mod4': 'Módulo 4: Relacionamento',
-        'mod5': 'Módulo 5: Gestão e Liderança'
+        'mod5': 'Módulo 5: Gestão e Liderança',
+        'mod-onboarding-1': 'Onboarding Geral',
+        'mod-onboarding-2': 'Onboarding Geral',
+        'mod-onboarding-3': 'Onboarding Geral',
+        'mod-onboarding-4': 'Onboarding Geral'
     };
 
     const moduloNome = moduleMap[moduleId] || moduleId;
@@ -4343,14 +4497,9 @@ function searchContent(query) {
     // Module-specific search
     const moduleKeywords = {
         'mod-onboarding-1': ['boas-vindas', 'apresentação', 'empresa'],
-        'mod-onboarding-2': ['história', 'trajetória', 'marcos'],
-        'mod-onboarding-3': ['cultura', 'valores', 'princípios'],
-        'mod-onboarding-4': ['estrutura', 'organizacional', 'departamentos'],
-        'mod-onboarding-5': ['comunicação', 'interna', 'canais'],
-        'mod-onboarding-6': ['postura', 'profissional', 'ética', 'conduta'],
-        'mod-onboarding-7': ['sistemas', 'ferramentas', 'software'],
-        'mod-onboarding-8': ['jornada', 'cliente', 'ciclo'],
-        'mod-onboarding-9': ['encerramento', 'avaliação', 'próximos passos'],
+        'mod-onboarding-2': ['organograma', 'estrutura', 'organizacional', 'departamentos', 'hierarquia'],
+        'mod-onboarding-3': ['nosso jeito de ser', 'cultura', 'valores', 'princípios', 'ética', 'comportamento'],
+        'mod-onboarding-4': ['guia do cliente', 'jornada', 'cliente', 'ciclo', 'excelência'],
         'mod-rel-1': ['jornada', 'cliente', 'experiência'],
         'mod-rel-2': ['atendimento', 'humanizado', 'empatia'],
         'mod-rel-3': ['escrita', 'e-mail', 'redação'],
@@ -4588,8 +4737,7 @@ function updateUserProfilePage() {
 
     const allModules = [
         'mod1','mod2','mod3','mod4','mod5',
-        'mod-onboarding-1','mod-onboarding-2','mod-onboarding-3','mod-onboarding-4','mod-onboarding-5',
-        'mod-onboarding-6','mod-onboarding-7','mod-onboarding-8','mod-onboarding-9',
+        'mod-onboarding-1','mod-onboarding-2','mod-onboarding-3','mod-onboarding-4',
         'mod-rel-1','mod-rel-2','mod-rel-3','mod-rel-4','mod-rel-5','mod-rel-6','mod-rel-7','mod-rel-8','mod-rel-9','mod-rel-10',
         'mod-astec-1','mod-astec-2','mod-astec-3','mod-astec-4','mod-astec-5',
         'mod-back-1','mod-back-2','mod-back-3','mod-back-4',
@@ -4931,8 +5079,7 @@ function checkAchievements() {
 
 function calculateUserStats() {
     const allModules = [
-        'mod-onboarding-1','mod-onboarding-2','mod-onboarding-3','mod-onboarding-4','mod-onboarding-5',
-        'mod-onboarding-6','mod-onboarding-7','mod-onboarding-8','mod-onboarding-9',
+        'mod-onboarding-1','mod-onboarding-2','mod-onboarding-3','mod-onboarding-4',
         'mod-rel-1','mod-rel-2','mod-rel-3','mod-rel-4','mod-rel-5','mod-rel-6','mod-rel-7','mod-rel-8','mod-rel-9','mod-rel-10',
         'mod-astec-1','mod-astec-2','mod-astec-3','mod-astec-4','mod-astec-5',
         'mod-back-1','mod-back-2','mod-back-3','mod-back-4',
@@ -4955,7 +5102,7 @@ function calculateUserStats() {
     });
 
     const trails = {
-        'onboarding': 9, 'relacionamento': 24, 'juridico': 4, 'compliance': 5
+        'onboarding': 4, 'relacionamento': 24, 'juridico': 4, 'compliance': 5
     };
 
     let maxTrailPct = 0;
@@ -5427,8 +5574,7 @@ async function viewUserDetail(email) {
     // Calculate progress percentage
     const allModulesList = [
         'mod1','mod2','mod3','mod4','mod5',
-        'mod-onboarding-1','mod-onboarding-2','mod-onboarding-3','mod-onboarding-4','mod-onboarding-5',
-        'mod-onboarding-6','mod-onboarding-7','mod-onboarding-8','mod-onboarding-9',
+        'mod-onboarding-1','mod-onboarding-2','mod-onboarding-3','mod-onboarding-4',
         'mod-rel-1','mod-rel-2','mod-rel-3','mod-rel-4','mod-rel-5','mod-rel-6','mod-rel-7','mod-rel-8','mod-rel-9','mod-rel-10',
         'mod-astec-1','mod-astec-2','mod-astec-3','mod-astec-4','mod-astec-5',
         'mod-back-1','mod-back-2','mod-back-3','mod-back-4',
@@ -5451,14 +5597,9 @@ async function viewUserDetail(email) {
                 'mod4': 'Relacionamento com Clientes',
                 'mod5': 'Gestão e Liderança',
                 'mod-onboarding-1': 'Boas-vindas',
-                'mod-onboarding-2': 'História da Empresa',
-                'mod-onboarding-3': 'Cultura e Valores',
-                'mod-onboarding-4': 'Estrutura Organizacional',
-                'mod-onboarding-5': 'Comunicação Interna',
-                'mod-onboarding-6': 'Postura Profissional',
-                'mod-onboarding-7': 'Sistemas Utilizados',
-                'mod-onboarding-8': 'Jornada do Cliente',
-                'mod-onboarding-9': 'Encerramento',
+                'mod-onboarding-2': 'Organograma',
+                'mod-onboarding-3': 'Nosso Jeito de Ser',
+                'mod-onboarding-4': 'Guia do Cliente',
                 'mod-rel-1': 'Jornada do Cliente',
                 'mod-rel-2': 'Atendimento Humanizado',
                 'mod-rel-3': 'Escrita Encantadora',
@@ -5733,13 +5874,4 @@ switchCmTab = function(tab) {
 };
 </script>
 </body>
-</html>            <!-- Achievements Section -->
-            <div class="faq-section" style="margin-bottom: 24px;">
-                <div class="faq-header">
-                    <h2><i class="fas fa-trophy" style="color:var(--turquesa);margin-right:8px;"></i>Conquistas</h2>
-                    <p>Reconhecimentos pelo seu progresso na plataforma.</p>
-                </div>
-                <div id="achievementsContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
-                    <!-- Populated by JS -->
-                </div>
-            </div>
+</html>
