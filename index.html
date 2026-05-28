@@ -3575,6 +3575,12 @@ function loadModuleContent(moduleId) {
         btn.innerHTML = '<i class="fas fa-check-circle"></i> Concluir Módulo';
         btn.onclick = function() { markComplete(moduleId); };
     }
+
+    // Hide pdf-section for mod-onboarding-1 since PDF is already rendered in slides
+    const pdfSection = document.querySelector('#page-module-generic .pdf-section');
+    if (pdfSection) {
+        pdfSection.style.display = moduleId === 'mod-onboarding-1' ? 'none' : '';
+    }
 }
 
 function loadModuleSlides(moduleId, data) {
@@ -3632,9 +3638,7 @@ const MODULE_CONTENT = {
     // Onboarding
     'mod-onboarding-1': {
         slides: [
-            { title: 'Bem-vindo à Canopus Construtora', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
-            { title: 'Nossa Missão', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' },
-            { title: 'Sua Jornada Começa Agora', text: 'Conteúdo em desenvolvimento. Material completo será disponibilizado em breve.' }
+            { title: 'Material de Onboarding — Boas-vindas', text: '<iframe src="https://pvorwgrpkcofoukbqtyg.supabase.co/storage/v1/object/public/materiais/boas-vindas/Canopus%20-%20Nosso%20Jeito%20de%20Ser.pdf" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
         ]
     },
     'mod-onboarding-2': {
