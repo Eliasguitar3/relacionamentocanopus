@@ -1091,6 +1091,7 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
             <div class="nav-item" data-page="certificados" onclick="navigateTo('certificados')">
                 <i class="fas fa-certificate"></i> Certificados
             </div>
+            <div class="nav-item" data-page="central-conhecimento" onclick="navigateTo('central-conhecimento')"><i class="fas fa-book"></i> Central de Conhecimento</div>
         </div>
 
         <!-- MENU ADMIN (hidden by default) -->
@@ -1146,7 +1147,90 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
         @media (max-width: 480px) {
             #notificationPanel { right: 8px !important; left: 8px !important; width: auto !important; top: 60px !important; }
         }
-        </style>
+        
+
+        /* ==================== CENTRAL DE CONHECIMENTO ==================== */
+        .ck-header {
+            margin-bottom: 2rem;
+        }
+        .ck-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .ck-header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+        .ck-search-box {
+            position: relative;
+            margin-bottom: 1.5rem;
+            max-width: 600px;
+        }
+        .ck-search-box input {
+            width: 100%;
+            padding: 0.85rem 1rem 0.85rem 2.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        .ck-search-box input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+        .ck-search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        .ck-filters {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        .ck-filter-btn {
+            padding: 0.5rem 1.2rem;
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+        .ck-filter-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        .ck-filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        .ck-empty {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+        .ck-empty i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        .ck-empty h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+</style>
         <div style="padding: 20px; border-bottom: 1px solid var(--borda); display: flex; justify-content: space-between; align-items: center;">
             <h3 style="font-size: 16px; color: var(--azul-escuro); font-weight: 700;"><i class="fas fa-bell" style="color: var(--turquesa); margin-right: 8px;"></i>Notificações</h3>
             <button onclick="clearAllNotifications()" style="background: none; border: none; color: var(--cinza); font-size: 12px; cursor: pointer; font-family: Inter, sans-serif;"><i class="fas fa-check-double"></i> Marcar todas como lidas</button>
@@ -2063,6 +2147,33 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
                     <h3>Nenhum certificado ainda</h3>
                     <p>Complete os módulos de treinamento para receber seus certificados.</p>
                 </div>
+            </div>
+        </div>
+
+        <!-- ==================== CENTRAL DE CONHECIMENTO ==================== -->
+        <div class="page-section" id="page-central-conhecimento">
+            <div class="page-header ck-header">
+                <span class="badge"><i class="fas fa-book"></i> Central de Conhecimento</span>
+                <h1>Central de Conhecimento</h1>
+                <p>Consulte procedimentos, guias rápidos e conteúdos operacionais da Canopus.</p>
+            </div>
+
+            <div class="ck-search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Buscar procedimentos, guias, fluxos..." disabled>
+            </div>
+
+            <div class="ck-filters">
+                <button class="ck-filter-btn active" disabled>Todas</button>
+                <button class="ck-filter-btn" disabled>Relacionamento</button>
+                <button class="ck-filter-btn" disabled>Jurídico</button>
+                <button class="ck-filter-btn" disabled>Compliance</button>
+            </div>
+
+            <div class="ck-empty">
+                <i class="fas fa-book-open"></i>
+                <h3>Em breve os conteúdos estarão disponíveis.</h3>
+                <p>A Central de Conhecimento está em construção. Em breve você terá acesso a procedimentos, guias e fluxos operacionais.</p>
             </div>
         </div>
 
@@ -3086,6 +3197,7 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
                 <a href="#" onclick="navigateTo('modulos')"><i class="fas fa-book-open"></i> Módulos</a>
                 <a href="#" onclick="navigateTo('faq')"><i class="fas fa-question-circle"></i> FAQ</a>
                 <a href="#" onclick="navigateTo('certificados')"><i class="fas fa-certificate"></i> Certificados</a>
+                <a href="#" onclick="navigateTo('central-conhecimento')"><i class="fas fa-book"></i> Central de Conhecimento</a>
             </div>
             <div class="footer-col">
                 <h4>Recursos</h4>
@@ -3740,6 +3852,8 @@ function navigateTo(page) {
         if (TRAIL_MODULES[trailName]) {
             setTimeout(function() { updateTrailLocks(trailName); }, 100);
         }
+    } else if (page === 'central-conhecimento') {
+        // Central de Conhecimento - estrutura visual Fase 1
     }
 }
 
@@ -3804,6 +3918,7 @@ function updateBreadcrumb(page) {
         'user-profile': 'Meu Perfil',
         'admin-dashboard': 'Painel administrativo',
         'admin-content': 'Gerenciar conteúdo',
+        'central-conhecimento': 'Central de Conhecimento',
         'admin-users': 'Gerenciar usuários'
     };
     document.getElementById('breadcrumbText').textContent = names[page] || 'Dashboard';
