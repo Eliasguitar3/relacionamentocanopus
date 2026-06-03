@@ -1230,6 +1230,67 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
             margin-bottom: 0.5rem;
             color: var(--text-color);
         }
+
+        .ck-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        .ck-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: var(--transition);
+            cursor: default;
+        }
+        .ck-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow);
+            transform: translateY(-2px);
+        }
+        .ck-card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+        .ck-card-area {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            background: var(--primary-color);
+            color: white;
+        }
+        .ck-card-area.compliance { background: #10b981; }
+        .ck-card-area.juridico { background: #8b5cf6; }
+        .ck-card-area.relacionamento { background: #f59e0b; }
+        .ck-card-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .ck-error {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #ef4444;
+        }
+        .ck-error i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.7;
+        }
+        .ck-error h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .ck-error p {
+            color: var(--text-secondary);
+        }
 </style>
         <div style="padding: 20px; border-bottom: 1px solid var(--borda); display: flex; justify-content: space-between; align-items: center;">
             <h3 style="font-size: 16px; color: var(--azul-escuro); font-weight: 700;"><i class="fas fa-bell" style="color: var(--turquesa); margin-right: 8px;"></i>Notificações</h3>
@@ -2160,20 +2221,28 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
 
             <div class="ck-search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Buscar procedimentos, guias, fluxos..." disabled>
+                <input type="text" placeholder="Buscar procedimentos, guias, fluxos...">
             </div>
 
             <div class="ck-filters">
-                <button class="ck-filter-btn active" disabled>Todas</button>
-                <button class="ck-filter-btn" disabled>Relacionamento</button>
-                <button class="ck-filter-btn" disabled>Jurídico</button>
-                <button class="ck-filter-btn" disabled>Compliance</button>
+                <button class="ck-filter-btn active">Todas</button>
+                <button class="ck-filter-btn">Relacionamento</button>
+                <button class="ck-filter-btn">Jurídico</button>
+                <button class="ck-filter-btn">Compliance</button>
             </div>
 
-            <div class="ck-empty">
+            <div <div class="ck-container" id="ckContainer"></div>
+
+            <div class="ck-empty" id="ckEmpty">
                 <i class="fas fa-book-open"></i>
-                <h3>Em breve os conteúdos estarão disponíveis.</h3>
-                <p>A Central de Conhecimento está em construção. Em breve você terá acesso a procedimentos, guias e fluxos operacionais.</p>
+                <h3>Nenhum conteúdo cadastrado.</h3>
+                <p>Ainda não existem procedimentos ou guias na Central de Conhecimento.</p>
+            </div>
+
+            <div class="ck-error" id="ckError" style="display:none">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Não foi possível carregar os conteúdos.</h3>
+                <p>Verifique sua conexão e tente novamente.</p>
             </div>
         </div>
 
@@ -3853,7 +3922,7 @@ function navigateTo(page) {
             setTimeout(function() { updateTrailLocks(trailName); }, 100);
         }
     } else if (page === 'central-conhecimento') {
-        // Central de Conhecimento - estrutura visual Fase 1
+        loadCentralConhecimento();
     }
 }
 
@@ -5756,6 +5825,69 @@ const certModalHtml = `
 
 // Add modal to body
 document.body.insertAdjacentHTML('beforeend', certModalHtml);
+
+
+// ==================== CENTRAL DE CONHECIMENTO ====================
+
+async function loadCentralConhecimento() {
+    const container = document.getElementById('ckContainer');
+    const emptyState = document.getElementById('ckEmpty');
+    const errorState = document.getElementById('ckError');
+
+    if (!container || !emptyState || !errorState) return;
+
+    // Reset states
+    container.innerHTML = '';
+    emptyState.style.display = 'none';
+    errorState.style.display = 'none';
+
+    try {
+        const sb = await ensureSupabase();
+        if (!sb) {
+            errorState.style.display = 'block';
+            return;
+        }
+
+        const { data, error } = await sb
+            .from('central_conhecimento')
+            .select('id, titulo, descricao_resumida, area, ativo, criado_em')
+            .eq('ativo', true)
+            .order('criado_em', { ascending: false });
+
+        if (error) {
+            console.error('Erro ao carregar Central de Conhecimento:', error);
+            errorState.style.display = 'block';
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            emptyState.style.display = 'block';
+            return;
+        }
+
+        renderCentralConhecimento(data);
+
+    } catch (err) {
+        console.error('Exceção ao carregar Central de Conhecimento:', err);
+        errorState.style.display = 'block';
+    }
+}
+
+function renderCentralConhecimento(data) {
+    const container = document.getElementById('ckContainer');
+    if (!container) return;
+
+    container.innerHTML = data.map(item => {
+        const areaClass = item.area ? item.area.toLowerCase().replace(/\s+/g, '-') : '';
+        return `
+            <div class="ck-card">
+                <div class="ck-card-title">${escapeHtml(item.titulo || 'Sem título')}</div>
+                <span class="ck-card-area ${areaClass}">${escapeHtml(item.area || 'Geral')}</span>
+                <div class="ck-card-desc">${escapeHtml(item.descricao_resumida || '')}</div>
+            </div>
+        `;
+    }).join('');
+}
 
 console.log('Canopus Conecta v6.0 - Sistema inicializado');
 
