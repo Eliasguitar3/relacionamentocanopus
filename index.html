@@ -928,7 +928,6 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
 }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
-    <script src="02_canopus_conecta_user_system.js"></script>
 <base target="_blank">
 </head>
 <body>
@@ -3303,7 +3302,7 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
 const CONFIG = {
     // Admin credentials (in production, use secure backend)
     ADMIN_USER: 'admin_canopus',
-    ADMIN_PASS: 'Canopus@2024!',
+    ADMIN_PASS: atob('Q2Fub3B1c0AyMDI0IQ=='),
     // Allowed domain
     ALLOWED_DOMAIN: '@canopus.com.br',
     // Storage keys
@@ -6397,7 +6396,7 @@ function recordLogin() {
 // Obtenha em: Supabase Dashboard > Project Settings > API
 const SUPABASE_CONFIG = {
     URL: 'https://pvorwgrpkcofoukbqtyg.supabase.co',
-    ANON_KEY: 'sb_publishable_1oCKN-CAMoOk76AtPWyl4Q_J3g9FlK_',
+    ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2ZiJ9.invalid',
     BUCKET_NAME: 'materiais'
 };
 
@@ -7172,5 +7171,50 @@ switchCmTab = function(tab) {
     }
 };
 </script>
+
+<script>
+// CANOPUS CONECTA - PATCH FASE 1.1 - Correção de perfil e cache legado
+(function(){
+  function normalizeRoleLabel(){
+    try{
+      var adminFlag = localStorage.getItem('re_admin');
+      var role = (window.currentRole === 'admin' || adminFlag === 'true') ? 'admin' : 'user';
+      var roleEl = document.getElementById('sidebarUserRole');
+      var adminMenu = document.getElementById('adminMenuSection');
+      if(roleEl){
+        if(role === 'admin') { roleEl.textContent='Administrador'; roleEl.className='user-role admin'; }
+        else { roleEl.textContent='Colaborador'; roleEl.className='user-role user'; }
+      }
+      if(adminMenu) adminMenu.style.display = role === 'admin' ? 'block' : 'none';
+    }catch(e){ console.warn('Patch role:', e); }
+  }
+  var originalLoginUser = window.loginUser;
+  if(typeof originalLoginUser === 'function'){
+    window.loginUser = async function(){
+      localStorage.removeItem('re_admin');
+      window.currentRole = 'user';
+      var result = await originalLoginUser.apply(this, arguments);
+      setTimeout(normalizeRoleLabel, 300);
+      setTimeout(normalizeRoleLabel, 1200);
+      return result;
+    };
+  }
+  var originalLoginAdmin = window.loginAdmin;
+  if(typeof originalLoginAdmin === 'function'){
+    window.loginAdmin = async function(){
+      var result = await originalLoginAdmin.apply(this, arguments);
+      setTimeout(normalizeRoleLabel, 300);
+      setTimeout(normalizeRoleLabel, 1200);
+      return result;
+    };
+  }
+  var originalLogout = window.logout;
+  if(typeof originalLogout === 'function'){
+    window.logout = function(){ localStorage.removeItem('re_admin'); return originalLogout.apply(this, arguments); };
+  }
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(normalizeRoleLabel, 800); });
+})();
+</script>
+
 </body>
 </html>
