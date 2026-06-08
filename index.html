@@ -6396,7 +6396,7 @@ function recordLogin() {
 // Obtenha em: Supabase Dashboard > Project Settings > API
 const SUPABASE_CONFIG = {
     URL: 'https://pvorwgrpkcofoukbqtyg.supabase.co',
-    ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2ZiJ9.invalid',
+    ANON_KEY: 'sb_publishable_1oCKN-CAMoOk76AtPWyl4Q_J3g9FlK_',
     BUCKET_NAME: 'materiais'
 };
 
@@ -7173,46 +7173,28 @@ switchCmTab = function(tab) {
 </script>
 
 <script>
-// CANOPUS CONECTA - PATCH FASE 1.1 - Correção de perfil e cache legado
 (function(){
-  function normalizeRoleLabel(){
+  function normalize(){
     try{
-      var adminFlag = localStorage.getItem('re_admin');
-      var role = (window.currentRole === 'admin' || adminFlag === 'true') ? 'admin' : 'user';
-      var roleEl = document.getElementById('sidebarUserRole');
-      var adminMenu = document.getElementById('adminMenuSection');
-      if(roleEl){
-        if(role === 'admin') { roleEl.textContent='Administrador'; roleEl.className='user-role admin'; }
-        else { roleEl.textContent='Colaborador'; roleEl.className='user-role user'; }
+      var role = (window.currentRole==='admin' || localStorage.getItem('re_admin')==='true')?'admin':'user';
+      var el=document.getElementById('sidebarUserRole');
+      var adminMenu=document.getElementById('adminMenuSection');
+      if(el){
+        if(role==='admin'){el.textContent='Administrador';el.className='user-role admin';}
+        else{el.textContent='Colaborador';el.className='user-role user';}
       }
-      if(adminMenu) adminMenu.style.display = role === 'admin' ? 'block' : 'none';
-    }catch(e){ console.warn('Patch role:', e); }
+      if(adminMenu) adminMenu.style.display = role==='admin'?'block':'none';
+    }catch(e){}
   }
-  var originalLoginUser = window.loginUser;
-  if(typeof originalLoginUser === 'function'){
-    window.loginUser = async function(){
-      localStorage.removeItem('re_admin');
-      window.currentRole = 'user';
-      var result = await originalLoginUser.apply(this, arguments);
-      setTimeout(normalizeRoleLabel, 300);
-      setTimeout(normalizeRoleLabel, 1200);
-      return result;
-    };
+  var lu=window.loginUser;
+  if(typeof lu==='function'){
+    window.loginUser=async function(){localStorage.removeItem('re_admin');window.currentRole='user';var r=await lu.apply(this,arguments);setTimeout(normalize,300);setTimeout(normalize,1200);return r;}
   }
-  var originalLoginAdmin = window.loginAdmin;
-  if(typeof originalLoginAdmin === 'function'){
-    window.loginAdmin = async function(){
-      var result = await originalLoginAdmin.apply(this, arguments);
-      setTimeout(normalizeRoleLabel, 300);
-      setTimeout(normalizeRoleLabel, 1200);
-      return result;
-    };
+  var la=window.loginAdmin;
+  if(typeof la==='function'){
+    window.loginAdmin=async function(){var r=await la.apply(this,arguments);setTimeout(normalize,300);setTimeout(normalize,1200);return r;}
   }
-  var originalLogout = window.logout;
-  if(typeof originalLogout === 'function'){
-    window.logout = function(){ localStorage.removeItem('re_admin'); return originalLogout.apply(this, arguments); };
-  }
-  document.addEventListener('DOMContentLoaded', function(){ setTimeout(normalizeRoleLabel, 800); });
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(normalize,800);});
 })();
 </script>
 
