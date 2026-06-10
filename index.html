@@ -967,7 +967,7 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
 }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
-<base target="_blank">
+<!-- base target removido: causava abertura de links em nova aba, incluindo navegação interna -->
 </head>
 <body>
 <button class="mobile-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
@@ -1195,8 +1195,10 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
         @media (max-width: 480px) {
             #notificationPanel { right: 8px !important; left: 8px !important; width: auto !important; top: 60px !important; }
         }
-        
+        </style>
 
+        <!-- Estilos da Central de Conhecimento movidos para o bloco <style> principal -->
+        <style>
         /* ==================== CENTRAL DE CONHECIMENTO ==================== */
         .ck-header {
             margin-bottom: 2rem;
@@ -3734,7 +3736,7 @@ async function checkAuthState() {
                     currentRole = 'user';
                 }
 
-                // Load progress
+                // Load progress from localStorage first (instant)
                 const savedProgress = localStorage.getItem(CONFIG.STORAGE_PROGRESS + '_' + currentUser.email);
                 if (savedProgress) {
                     userProgress = JSON.parse(savedProgress);
@@ -3748,6 +3750,8 @@ async function checkAuthState() {
                     updateAdminDashboard();
                 } else {
                     updateDashboard();
+                    // Then load from Supabase and merge (async, non-blocking)
+                    loadProgressFromSupabase();
                 }
                 return;
             }
@@ -3785,6 +3789,8 @@ async function checkAuthState() {
                 hideLoginScreen();
                 showApp();
                 updateDashboard();
+                // Tenta sincronizar com Supabase em segundo plano
+                loadProgressFromSupabase();
             } else {
                 localStorage.removeItem(CONFIG.STORAGE_USER);
             }
@@ -4246,6 +4252,8 @@ function markComplete(moduleId) {
         if (confirm('Este módulo já está marcado como concluído. Deseja remover a conclusão?')) {
             delete userProgress[moduleId];
             localStorage.setItem(CONFIG.STORAGE_PROGRESS + '_' + currentUser.email, JSON.stringify(userProgress));
+            // Sync removal to Supabase
+            syncProgressToSupabase(moduleId, false);
             updateDashboard();
             updateModuleButton(moduleId, false);
             showNotification('Conclusão removida.', 'info');
@@ -4263,8 +4271,9 @@ function markComplete(moduleId) {
         date: new Date().toISOString()
     };
 
-    // Save progress
+    // Save progress locally AND sync to Supabase
     localStorage.setItem(CONFIG.STORAGE_PROGRESS + '_' + currentUser.email, JSON.stringify(userProgress));
+    syncProgressToSupabase(moduleId, true);
 
     // Update UI
     updateDashboard();
@@ -4280,11 +4289,86 @@ function markComplete(moduleId) {
         setTimeout(updateOnboardingLocks, 50);
     }
 
-        addNotification('Módulo concluído', 'Você concluiu o módulo com sucesso. Continue sua trilha!', 'success');
-        refreshSystemNotifications();
-        addActivity('module_complete', 'Módulo concluído', 'Módulo ' + moduleId + ' marcado como concluído');
+    addNotification('Módulo concluído', 'Você concluiu o módulo com sucesso. Continue sua trilha!', 'success');
+    refreshSystemNotifications();
+    addActivity('module_complete', 'Módulo concluído', 'Módulo ' + moduleId + ' marcado como concluído');
     checkAchievements();
     showNotification('Módulo concluído! Progresso salvo.', 'success');
+}
+
+// ==================== SINCRONIZAÇÃO DE PROGRESSO COM SUPABASE ====================
+
+async function syncProgressToSupabase(moduleId, completed) {
+    try {
+        if (!supabaseClient) initSupabase();
+        if (!supabaseClient || !currentUser) return;
+
+        const userId = currentUser.supabaseId || currentUser.id;
+        if (!userId) return;
+
+        if (completed) {
+            // Upsert progresso do módulo
+            await supabaseClient.from('progresso_modulos').upsert({
+                colaborador_id: userId,
+                modulo_id: moduleId,
+                concluido: true,
+                percentual: 100,
+                concluido_em: new Date().toISOString()
+            }, { onConflict: 'colaborador_id,modulo_id', ignoreDuplicates: false });
+        } else {
+            // Remove progresso
+            await supabaseClient.from('progresso_modulos')
+                .delete()
+                .eq('colaborador_id', userId)
+                .eq('modulo_id', moduleId);
+        }
+    } catch (e) {
+        console.warn('Supabase sync (non-critical):', e.message);
+        // Falha silenciosa — localStorage já salvou
+    }
+}
+
+async function loadProgressFromSupabase() {
+    try {
+        if (!supabaseClient) initSupabase();
+        if (!supabaseClient || !currentUser) return;
+
+        const userId = currentUser.supabaseId || currentUser.id;
+        if (!userId) return;
+
+        const { data, error } = await supabaseClient
+            .from('progresso_modulos')
+            .select('modulo_id, concluido, concluido_em')
+            .eq('colaborador_id', userId)
+            .eq('concluido', true);
+
+        if (error || !data) return;
+
+        // Mescla dados do Supabase com localStorage (Supabase tem prioridade)
+        data.forEach(row => {
+            userProgress[row.modulo_id] = {
+                completed: true,
+                date: row.concluido_em || new Date().toISOString()
+            };
+        });
+
+        // Salva versão mesclada no localStorage
+        localStorage.setItem(CONFIG.STORAGE_PROGRESS + '_' + currentUser.email, JSON.stringify(userProgress));
+
+        // Atualiza UI
+        updateDashboard();
+        updateOnboardingLocks();
+        Object.keys(TRAIL_MODULES).forEach(t => updateTrailLocks(t));
+
+        // Atualiza stats do dashboard
+        const statEl = document.getElementById('statModulosConcluidos');
+        if (statEl) statEl.textContent = data.length;
+        const certEl = document.getElementById('statCertificados');
+        if (certEl) certEl.textContent = data.length;
+
+    } catch (e) {
+        console.warn('Erro ao carregar progresso do Supabase:', e.message);
+    }
 }
 
 function updateModuleButton(moduleId, completed) {
@@ -4423,8 +4507,9 @@ function markCompleteOnboarding(moduleId) {
         date: new Date().toISOString()
     };
 
-    // Save progress
+    // Save progress locally AND sync to Supabase
     localStorage.setItem(CONFIG.STORAGE_PROGRESS + '_' + currentUser.email, JSON.stringify(userProgress));
+    syncProgressToSupabase(moduleId, true);
 
     // Generate certificate automatically
     generateOnboardingCertificate(moduleId);
@@ -5881,9 +5966,7 @@ function loadTheme() {
     }
 }
 
-function toggleNotifications() {
-    showNotification('Nenhuma notificação nova', 'info');
-}
+// toggleNotifications: versão completa definida abaixo (linha com painel real)
 
 // ==================== MODALS ====================
 
@@ -5891,9 +5974,7 @@ function showAboutModal() {
     showNotification('Canopus Conecta v6.0 — Plataforma de Treinamento Canopus', 'info');
 }
 
-function viewUserDetail(email) {
-    showNotification('Detalhes do usuário: ' + email, 'info');
-}
+// viewUserDetail: versão completa com dados reais definida abaixo
 
 // ==================== UTILITIES ====================
 
@@ -7056,7 +7137,7 @@ function recordLogin() {
 // Obtenha em: Supabase Dashboard > Project Settings > API
 const SUPABASE_CONFIG = {
     URL: 'https://pvorwgrpkcofoukbqtyg.supabase.co',
-    ANON_KEY: 'sb_publishable_1oCKN-CAMoOk76AtPWyl4Q_J3g9FlK_',
+    ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2b3J3Z3Jwa2NvZm91a2JxdHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MjU2MjcsImV4cCI6MjA5NTMwMTYyN30._7nMPDUYbFRqhODAsAwVH-GqOkDEZ02p1nsgXXf9B_Q',
     BUCKET_NAME: 'materiais'
 };
 
@@ -7780,54 +7861,37 @@ async function renderModuleFiles(moduleId) {
     }
 }
 
-// ==================== ENHANCED NAVIGATE TO (hook for FAQ loading) ====================
-
-const originalNavigateTo = navigateTo;
+// ==================== ENHANCED NAVIGATE TO (versão consolidada) ====================
+const _navigateToBase = navigateTo;
 navigateTo = function(page) {
-    // Call original first
-    originalNavigateTo(page);
-
-    // Additional hooks
+    _navigateToBase(page);
     if (page === 'faq') {
         setTimeout(loadFaqForUser, 300);
     }
-
     if (page.startsWith('mod-')) {
         setTimeout(() => renderModuleFiles(page), 500);
     }
 };
 
-// ==================== ENHANCED LOAD MODULE CONTENT (hook for materials) ====================
-
-const originalLoadModuleContent = loadModuleContent;
+// ==================== ENHANCED LOAD MODULE CONTENT (versão consolidada) ====================
+const _loadModuleContentBase = loadModuleContent;
 loadModuleContent = function(moduleId) {
-    originalLoadModuleContent(moduleId);
-
-    // Update the PDF section to use dynamic grid
-    const slidesContainer = document.getElementById('mod-slides-container');
-    if (slidesContainer) {
-        // Check if we need to add the dynamic PDF grid
-        const existingPdfGrid = document.getElementById('mod-pdf-grid');
-        if (!existingPdfGrid) {
-            // The PDF section already exists in the HTML, just update its ID
-            const pdfSection = slidesContainer.parentElement.querySelector('.pdf-section .pdf-grid');
-            if (pdfSection) {
-                pdfSection.id = 'mod-pdf-grid';
-            }
-        }
-    }
-
-    // Load files for this module
+    _loadModuleContentBase(moduleId);
     setTimeout(() => renderModuleFiles(moduleId), 600);
 };
 
-// ==================== ENHANCED SWITCH CM TAB (hook for FAQ admin) ====================
-
-const originalSwitchCmTab = switchCmTab;
+// ==================== ENHANCED SWITCH CM TAB (versão consolidada) ====================
+// Encadeia todas as extensões de uma vez, sem múltiplos wraps acumulados
+const _switchCmTabBase = switchCmTab;
 switchCmTab = function(tab) {
-    originalSwitchCmTab(tab);
+    _switchCmTabBase(tab);
+    // FAQ admin
     if (tab === 'faq') {
         setTimeout(loadFaqAdminList, 300);
+    }
+    // Usuários corporativos
+    if (tab === 'usuarios' || tab === 'admin-users') {
+        carregarPainelUsuariosCorporativo();
     }
 };
 </script>
@@ -7913,16 +7977,7 @@ async function carregarPainelUsuariosCorporativo() {
     }
 }
 
-// Vincula a função nova ao gancho de mudança de abas do seu sistema original
-const originalSwitchCmTabHook = window.switchCmTab;
-window.switchCmTab = function(tab) {
-    if (typeof originalSwitchCmTabHook === 'function') {
-        originalSwitchCmTabHook(tab);
-    }
-    if (tab === 'usuarios' || tab === 'admin-users') {
-        carregarPainelUsuariosCorporativo();
-    }
-};
+// switchCmTab já consolidada acima — sem redefinição adicional
 
 // Detalhes do usuário vindos do banco de dados ao clicar em "Ver"
 async function showUserDetailModalFromDb(userId) {
