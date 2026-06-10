@@ -4301,40 +4301,60 @@ function markComplete(moduleId) {
 async function syncProgressToSupabase(moduleId, completed) {
     try {
         if (!supabaseClient) initSupabase();
-        if (!supabaseClient || !currentUser) return;
+        if (!supabaseClient) { console.warn('syncProgress: supabaseClient nulo'); return; }
 
-        const userId = currentUser.supabaseId || currentUser.id;
-        if (!userId) return;
+        // Garante sessão ativa
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) { console.warn('syncProgress: sem sessão Supabase ativa'); return; }
+
+        const userId = session.user.id;
+
+        // Descobre trilha do módulo para preencher trilha_id (texto → uuid via lookup)
+        let trilhaSlug = null;
+        if (moduleId.includes('onboarding')) trilhaSlug = 'onboarding';
+        else if (moduleId.includes('rel-') || moduleId.includes('astec') || moduleId.includes('back') || moduleId.includes('rec-')) trilhaSlug = 'relacionamento';
+        else if (moduleId.includes('jur-')) trilhaSlug = 'juridico';
+        else if (moduleId.includes('comp-')) trilhaSlug = 'compliance';
+
+        let trilhaId = null;
+        if (trilhaSlug) {
+            const { data: t } = await supabaseClient
+                .from('trilhas').select('id').eq('slug', trilhaSlug).single();
+            if (t) trilhaId = t.id;
+        }
 
         if (completed) {
-            // Upsert progresso do módulo
-            await supabaseClient.from('progresso_modulos').upsert({
+            const { error } = await supabaseClient.from('progresso_modulos').upsert({
                 colaborador_id: userId,
                 modulo_id: moduleId,
+                trilha_id: trilhaId,
                 concluido: true,
                 percentual: 100,
                 concluido_em: new Date().toISOString()
-            }, { onConflict: 'colaborador_id,modulo_id', ignoreDuplicates: false });
+            }, { onConflict: 'colaborador_id,modulo_id' });
+            if (error) console.warn('syncProgress upsert erro:', error.message);
+            else console.log('✓ Progresso salvo no Supabase:', moduleId);
         } else {
-            // Remove progresso
-            await supabaseClient.from('progresso_modulos')
+            const { error } = await supabaseClient.from('progresso_modulos')
                 .delete()
                 .eq('colaborador_id', userId)
                 .eq('modulo_id', moduleId);
+            if (error) console.warn('syncProgress delete erro:', error.message);
         }
     } catch (e) {
         console.warn('Supabase sync (non-critical):', e.message);
-        // Falha silenciosa — localStorage já salvou
     }
 }
 
 async function loadProgressFromSupabase() {
     try {
         if (!supabaseClient) initSupabase();
-        if (!supabaseClient || !currentUser) return;
+        if (!supabaseClient) return;
 
-        const userId = currentUser.supabaseId || currentUser.id;
-        if (!userId) return;
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) return;
+
+        const userId = session.user.id;
 
         const { data, error } = await supabaseClient
             .from('progresso_modulos')
@@ -4344,7 +4364,7 @@ async function loadProgressFromSupabase() {
 
         if (error || !data) return;
 
-        // Mescla dados do Supabase com localStorage (Supabase tem prioridade)
+        // Mescla dados do Supabase com localStorage
         data.forEach(row => {
             userProgress[row.modulo_id] = {
                 completed: true,
@@ -4353,19 +4373,21 @@ async function loadProgressFromSupabase() {
         });
 
         // Salva versão mesclada no localStorage
-        localStorage.setItem(CONFIG.STORAGE_PROGRESS + '_' + currentUser.email, JSON.stringify(userProgress));
+        if (currentUser && currentUser.email) {
+            localStorage.setItem(CONFIG.STORAGE_PROGRESS + '_' + currentUser.email, JSON.stringify(userProgress));
+        }
 
         // Atualiza UI
         updateDashboard();
         updateOnboardingLocks();
         Object.keys(TRAIL_MODULES).forEach(t => updateTrailLocks(t));
 
-        // Atualiza stats do dashboard
         const statEl = document.getElementById('statModulosConcluidos');
         if (statEl) statEl.textContent = data.length;
         const certEl = document.getElementById('statCertificados');
         if (certEl) certEl.textContent = data.length;
 
+        console.log('✓ Progresso carregado do Supabase:', data.length, 'módulos');
     } catch (e) {
         console.warn('Erro ao carregar progresso do Supabase:', e.message);
     }
