@@ -965,9 +965,36 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
         margin-top: 40px !important;
     }
 }
+
+/* ==================== RESPONSIVIDADE MOBILE ==================== */
+@media (max-width: 900px) {
+    .sidebar { transform: translateX(-100%); position: fixed; z-index: 200; transition: transform .3s; }
+    .sidebar.open { transform: translateX(0); }
+    .main-content { margin-left: 0 !important; }
+}
+@media (max-width: 768px) {
+    body { overflow-x: hidden; }
+    .main-content { margin-left: 0 !important; padding: 12px !important; overflow-x: hidden; }
+    .content-area { padding: 12px !important; overflow-x: hidden; }
+    .page-header h1 { font-size: 20px !important; }
+    .stats-grid, .dashboard-cards, .cards-grid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+    .trail-modules-grid { grid-template-columns: 1fr !important; }
+    .module-hero { padding: 20px 16px !important; }
+    .card { padding: 14px !important; }
+    .modal-content { width: 95vw !important; max-width: 95vw !important; margin: 10px auto !important; }
+    table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .cm-tabs { overflow-x: auto; flex-wrap: nowrap !important; }
+}
+@media (max-width: 480px) {
+    .stats-grid, .dashboard-cards { grid-template-columns: 1fr !important; }
+    .page-header h1 { font-size: 18px !important; }
+    .top-bar .search-box { display: none; }
+}
+.content-area, .page-section, .main-content { overflow-x: hidden; }
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
-<!-- base target removido: causava abertura de links em nova aba, incluindo navegação interna -->
+<!-- base target removido -->
 </head>
 <body>
 <button class="mobile-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
@@ -1017,16 +1044,16 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
                 <div class="login-success" id="success-user"><i class="fas fa-check-circle"></i> <span></span></div>
                 <div class="form-group">
                     <label>Seu e-mail corporativo</label>
-                    <input type="email" id="userEmailInput" placeholder="Ex: joao.silva@canopus.com.br" onkeypress="if(event.key==='Enter')loginUser()" autocomplete="email">
+                    <input type="email" id="userEmailInput" placeholder="Ex: joao.silva@canopus.com.br" onkeypress="if(event.key==='Enter')loginUser()">
                     <p class="domain-hint"><i class="fas fa-lock"></i> Apenas e-mails @canopus.com.br são permitidos</p>
                 </div>
                 <div class="form-group">
                     <label>Sua senha</label>
-                    <input type="password" id="userPasswordInput" placeholder="Mínimo 6 caracteres" onkeypress="if(event.key==='Enter')loginUser()" autocomplete="current-password">
+                    <input type="password" id="userPasswordInput" placeholder="Mínimo 6 caracteres" onkeypress="if(event.key==='Enter')loginUser()">
                     <p class="domain-hint"><i class="fas fa-info-circle"></i> Primeiro acesso? Sua conta será criada automaticamente</p>
                 </div>
                 <button type="button" class="login-btn" id="btnLoginUser" onclick="loginUser()">
-                    <i class="fas fa-sign-in-alt"></i> Entrar
+                    <i class="fas fa-sign-in-alt"></i> Acessar minha trilha
                 </button>
             </div>
 
@@ -1191,10 +1218,8 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
         @media (max-width: 480px) {
             #notificationPanel { right: 8px !important; left: 8px !important; width: auto !important; top: 60px !important; }
         }
-        </style>
+        
 
-        <!-- Estilos da Central de Conhecimento movidos para o bloco <style> principal -->
-        <style>
         /* ==================== CENTRAL DE CONHECIMENTO ==================== */
         .ck-header {
             margin-bottom: 2rem;
@@ -3737,16 +3762,13 @@ async function checkAuthState() {
                 if (savedProgress) {
                     userProgress = JSON.parse(savedProgress);
                 }
-
                 hideLoginScreen();
                 showApp();
                 validateUrlAccess();
-
                 if (currentRole === 'admin') {
                     updateAdminDashboard();
                 } else {
                     updateDashboard();
-                    // Then load from Supabase and merge (async, non-blocking)
                     loadProgressFromSupabase();
                 }
                 return;
@@ -3785,8 +3807,6 @@ async function checkAuthState() {
                 hideLoginScreen();
                 showApp();
                 updateDashboard();
-                // Tenta sincronizar com Supabase em segundo plano
-                loadProgressFromSupabase();
             } else {
                 localStorage.removeItem(CONFIG.STORAGE_USER);
             }
@@ -4248,8 +4268,6 @@ function markComplete(moduleId) {
         if (confirm('Este módulo já está marcado como concluído. Deseja remover a conclusão?')) {
             delete userProgress[moduleId];
             localStorage.setItem(CONFIG.STORAGE_PROGRESS + '_' + currentUser.email, JSON.stringify(userProgress));
-            // Sync removal to Supabase
-            syncProgressToSupabase(moduleId, false);
             updateDashboard();
             updateModuleButton(moduleId, false);
             showNotification('Conclusão removida.', 'info');
@@ -4267,8 +4285,10 @@ function markComplete(moduleId) {
         date: new Date().toISOString()
     };
 
-    // Save progress locally AND sync to Supabase
+    // Save progress locally
     localStorage.setItem(CONFIG.STORAGE_PROGRESS + '_' + currentUser.email, JSON.stringify(userProgress));
+
+    // Sync to Supabase
     syncProgressToSupabase(moduleId, true);
 
     // Update UI
@@ -4292,35 +4312,27 @@ function markComplete(moduleId) {
     showNotification('Módulo concluído! Progresso salvo.', 'success');
 }
 
-// ==================== SINCRONIZAÇÃO DE PROGRESSO COM SUPABASE ====================
+// ==================== SUPABASE SYNC ====================
 
 async function syncProgressToSupabase(moduleId, completed) {
     try {
         if (!supabaseClient) initSupabase();
-        if (!supabaseClient) { console.warn('syncProgress: supabaseClient nulo'); return; }
-
-        // Garante sessão ativa
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (!session || !session.user) { console.warn('syncProgress: sem sessão Supabase ativa'); return; }
-
-        const userId = session.user.id;
-
-        // Descobre trilha do módulo para preencher trilha_id (texto → uuid via lookup)
-        let trilhaSlug = null;
-        if (moduleId.includes('onboarding')) trilhaSlug = 'onboarding';
-        else if (moduleId.includes('rel-') || moduleId.includes('astec') || moduleId.includes('back') || moduleId.includes('rec-')) trilhaSlug = 'relacionamento';
-        else if (moduleId.includes('jur-')) trilhaSlug = 'juridico';
-        else if (moduleId.includes('comp-')) trilhaSlug = 'compliance';
-
-        let trilhaId = null;
+        if (!supabaseClient) return;
+        var sess = await supabaseClient.auth.getSession();
+        if (!sess || !sess.data || !sess.data.session) return;
+        var userId = sess.data.session.user.id;
+        var trilhaSlug = null;
+        if (moduleId.indexOf('onboarding') !== -1) trilhaSlug = 'onboarding';
+        else if (moduleId.indexOf('rel-') !== -1) trilhaSlug = 'relacionamento';
+        else if (moduleId.indexOf('jur-') !== -1) trilhaSlug = 'juridico';
+        else if (moduleId.indexOf('comp-') !== -1) trilhaSlug = 'compliance';
+        var trilhaId = null;
         if (trilhaSlug) {
-            const { data: t } = await supabaseClient
-                .from('trilhas').select('id').eq('slug', trilhaSlug).single();
-            if (t) trilhaId = t.id;
+            var tr = await supabaseClient.from('trilhas').select('id').eq('slug', trilhaSlug).single();
+            if (tr && tr.data) trilhaId = tr.data.id;
         }
-
         if (completed) {
-            const { error } = await supabaseClient.from('progresso_modulos').upsert({
+            var res = await supabaseClient.from('progresso_modulos').upsert({
                 colaborador_id: userId,
                 modulo_id: moduleId,
                 trilha_id: trilhaId,
@@ -4328,65 +4340,37 @@ async function syncProgressToSupabase(moduleId, completed) {
                 percentual: 100,
                 concluido_em: new Date().toISOString()
             }, { onConflict: 'colaborador_id,modulo_id' });
-            if (error) console.warn('syncProgress upsert erro:', error.message);
-            else console.log('✓ Progresso salvo no Supabase:', moduleId);
+            if (res.error) { console.warn('Sync erro:', res.error.message); }
+            else { console.log('Progresso salvo no Supabase:', moduleId); }
         } else {
-            const { error } = await supabaseClient.from('progresso_modulos')
-                .delete()
-                .eq('colaborador_id', userId)
-                .eq('modulo_id', moduleId);
-            if (error) console.warn('syncProgress delete erro:', error.message);
+            await supabaseClient.from('progresso_modulos').delete()
+                .eq('colaborador_id', userId).eq('modulo_id', moduleId);
         }
-    } catch (e) {
-        console.warn('Supabase sync (non-critical):', e.message);
-    }
+    } catch(e) { console.warn('Supabase sync:', e.message); }
 }
 
 async function loadProgressFromSupabase() {
     try {
         if (!supabaseClient) initSupabase();
         if (!supabaseClient) return;
-
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (!session || !session.user) return;
-
-        const userId = session.user.id;
-
-        const { data, error } = await supabaseClient
-            .from('progresso_modulos')
-            .select('modulo_id, concluido, concluido_em')
-            .eq('colaborador_id', userId)
-            .eq('concluido', true);
-
-        if (error || !data) return;
-
-        // Mescla dados do Supabase com localStorage
-        data.forEach(row => {
-            userProgress[row.modulo_id] = {
-                completed: true,
-                date: row.concluido_em || new Date().toISOString()
-            };
+        var sess = await supabaseClient.auth.getSession();
+        if (!sess || !sess.data || !sess.data.session) return;
+        var userId = sess.data.session.user.id;
+        var res = await supabaseClient.from('progresso_modulos')
+            .select('modulo_id,concluido,concluido_em')
+            .eq('colaborador_id', userId).eq('concluido', true);
+        if (res.error || !res.data) return;
+        res.data.forEach(function(row) {
+            userProgress[row.modulo_id] = { completed: true, date: row.concluido_em || new Date().toISOString() };
         });
-
-        // Salva versão mesclada no localStorage
         if (currentUser && currentUser.email) {
             localStorage.setItem(CONFIG.STORAGE_PROGRESS + '_' + currentUser.email, JSON.stringify(userProgress));
         }
-
-        // Atualiza UI
         updateDashboard();
         updateOnboardingLocks();
-        Object.keys(TRAIL_MODULES).forEach(t => updateTrailLocks(t));
-
-        const statEl = document.getElementById('statModulosConcluidos');
-        if (statEl) statEl.textContent = data.length;
-        const certEl = document.getElementById('statCertificados');
-        if (certEl) certEl.textContent = data.length;
-
-        console.log('✓ Progresso carregado do Supabase:', data.length, 'módulos');
-    } catch (e) {
-        console.warn('Erro ao carregar progresso do Supabase:', e.message);
-    }
+        Object.keys(TRAIL_MODULES).forEach(function(t) { updateTrailLocks(t); });
+        console.log('Progresso carregado do Supabase:', res.data.length, 'modulos');
+    } catch(e) { console.warn('Load progress:', e.message); }
 }
 
 function updateModuleButton(moduleId, completed) {
@@ -4525,8 +4509,9 @@ function markCompleteOnboarding(moduleId) {
         date: new Date().toISOString()
     };
 
-    // Save progress locally AND sync to Supabase
+    // Save progress locally
     localStorage.setItem(CONFIG.STORAGE_PROGRESS + '_' + currentUser.email, JSON.stringify(userProgress));
+    // Sync to Supabase
     syncProgressToSupabase(moduleId, true);
 
     // Generate certificate automatically
@@ -4841,6 +4826,12 @@ function loadModuleSlides(moduleId, data) {
     const slidesContainer = document.getElementById('mod-slides-container');
     if (!slidesContainer) return;
 
+    // Módulos com conteúdo interativo customizado
+    if (moduleId === 'mod-rel-2') {
+        renderModRelDois(slidesContainer);
+        return;
+    }
+
     const slides = MODULE_CONTENT[moduleId];
     if (!slides || !slides.slides || slides.slides.length === 0) {
         slidesContainer.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><h3>Conteúdo em desenvolvimento</h3><p>Os materiais deste módulo serão adicionados em breve pela equipe de conteúdo.</p></div>';
@@ -4888,6 +4879,66 @@ function showSlide(index) {
 }
 
 // Module content database - comprehensive slide content for all modules
+
+async function syncProgressToSupabase(moduleId, completed) {
+    try {
+        if (!supabaseClient) initSupabase();
+        if (!supabaseClient) return;
+        var sess = await supabaseClient.auth.getSession();
+        if (!sess || !sess.data || !sess.data.session) return;
+        var userId = sess.data.session.user.id;
+        var trilhaSlug = null;
+        if (moduleId.indexOf('onboarding') !== -1) trilhaSlug = 'onboarding';
+        else if (moduleId.indexOf('rel-') !== -1) trilhaSlug = 'relacionamento';
+        else if (moduleId.indexOf('jur-') !== -1) trilhaSlug = 'juridico';
+        else if (moduleId.indexOf('comp-') !== -1) trilhaSlug = 'compliance';
+        var trilhaId = null;
+        if (trilhaSlug) {
+            var tr = await supabaseClient.from('trilhas').select('id').eq('slug', trilhaSlug).single();
+            if (tr && tr.data) trilhaId = tr.data.id;
+        }
+        if (completed) {
+            var res = await supabaseClient.from('progresso_modulos').upsert({
+                colaborador_id: userId,
+                modulo_id: moduleId,
+                trilha_id: trilhaId,
+                concluido: true,
+                percentual: 100,
+                concluido_em: new Date().toISOString()
+            }, { onConflict: 'colaborador_id,modulo_id' });
+            if (res.error) { console.warn('Sync erro:', res.error.message); }
+            else { console.log('Progresso salvo no Supabase:', moduleId); }
+        } else {
+            await supabaseClient.from('progresso_modulos').delete()
+                .eq('colaborador_id', userId).eq('modulo_id', moduleId);
+        }
+    } catch(e) { console.warn('Supabase sync:', e.message); }
+}
+
+async function loadProgressFromSupabase() {
+    try {
+        if (!supabaseClient) initSupabase();
+        if (!supabaseClient) return;
+        var sess = await supabaseClient.auth.getSession();
+        if (!sess || !sess.data || !sess.data.session) return;
+        var userId = sess.data.session.user.id;
+        var res = await supabaseClient.from('progresso_modulos')
+            .select('modulo_id,concluido,concluido_em')
+            .eq('colaborador_id', userId).eq('concluido', true);
+        if (res.error || !res.data) return;
+        res.data.forEach(function(row) {
+            userProgress[row.modulo_id] = { completed: true, date: row.concluido_em || new Date().toISOString() };
+        });
+        if (currentUser && currentUser.email) {
+            localStorage.setItem(CONFIG.STORAGE_PROGRESS + '_' + currentUser.email, JSON.stringify(userProgress));
+        }
+        updateDashboard();
+        updateOnboardingLocks();
+        Object.keys(TRAIL_MODULES).forEach(function(t) { updateTrailLocks(t); });
+        console.log('Progresso carregado do Supabase:', res.data.length, 'modulos');
+    } catch(e) { console.warn('Load progress:', e.message); }
+}
+
 const MODULE_CONTENT = {
     // Onboarding
     'mod-onboarding-1': {
@@ -4897,188 +4948,188 @@ const MODULE_CONTENT = {
     },
     'mod-onboarding-2': {
         slides: [
-            { title: 'Organograma', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_ONBOARDING_2" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Organograma', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-onboarding-3': {
         slides: [
-            { title: 'Nosso Jeito de Ser', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_ONBOARDING_3" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Nosso Jeito de Ser', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-onboarding-4': {
         slides: [
-            { title: 'Guia do Cliente', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_ONBOARDING_4" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Guia do Cliente', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
 // Relacionamento
     'mod-rel-1': {
         slides: [
-            { title: 'Jornada do Cliente', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_REL_1" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Jornada do Cliente', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-rel-2': {
         slides: [
-            { title: 'Atendimento Humanizado', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_REL_2" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Atendimento Humanizado', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-rel-3': {
         slides: [
-            { title: 'Escrita Encantadora', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_REL_3" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Escrita Encantadora', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-rel-4': {
         slides: [
-            { title: 'Comunicação Profissional', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_REL_4" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Comunicação Profissional', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-rel-5': {
         slides: [
-            { title: 'Gestão de Conflitos', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_REL_5" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Gestão de Conflitos', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-rel-6': {
         slides: [
-            { title: 'SLA e Prazos', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_REL_6" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'SLA e Prazos', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-rel-7': {
         slides: [
-            { title: 'Fluxos Operacionais', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_REL_7" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Fluxos Operacionais', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-rel-8': {
         slides: [
-            { title: 'Sistemas Internos', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_REL_8" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Sistemas Internos', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-rel-9': {
         slides: [
-            { title: 'Modelos de Resposta', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_REL_9" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Modelos de Resposta', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-rel-10': {
         slides: [
-            { title: 'FAQ Operacional', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_REL_10" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'FAQ Operacional', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     // ASTEC
     'mod-astec-1': {
         slides: [
-            { title: 'Fluxo de Assistência Técnica', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_ASTEC_1" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Fluxo de Assistência Técnica', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-astec-2': {
         slides: [
-            { title: 'Vistorias', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_ASTEC_2" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Vistorias', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-astec-3': {
         slides: [
-            { title: 'Garantias', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_ASTEC_3" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Garantias', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-astec-4': {
         slides: [
-            { title: 'Chamados', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_ASTEC_4" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Chamados', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-astec-5': {
         slides: [
-            { title: 'SLA Técnico', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_ASTEC_5" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'SLA Técnico', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     // Backoffice
     'mod-back-1': {
         slides: [
-            { title: 'Fluxos Internos', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_BACK_1" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Fluxos Internos', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-back-2': {
         slides: [
-            { title: 'Processos Administrativos', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_BACK_2" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Processos Administrativos', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-back-3': {
         slides: [
-            { title: 'Comunicação entre Áreas', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_BACK_3" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Comunicação entre Áreas', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-back-4': {
         slides: [
-            { title: 'Controles Internos', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_BACK_4" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Controles Internos', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     // Recuperação de Crédito
     'mod-rec-1': {
         slides: [
-            { title: 'Negociação', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_REC_1" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Negociação', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-rec-2': {
         slides: [
-            { title: 'Cobrança Humanizada', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_REC_2" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Cobrança Humanizada', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-rec-3': {
         slides: [
-            { title: 'Fluxos Financeiros', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_REC_3" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Fluxos Financeiros', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-rec-4': {
         slides: [
-            { title: 'Acordos', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_REC_4" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Acordos', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-rec-5': {
         slides: [
-            { title: 'Indicadores', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_REC_5" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Indicadores', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     // Jurídico
     'mod-jur-1': {
         slides: [
-            { title: 'Contratos', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_JUR_1" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Contratos', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-jur-2': {
         slides: [
-            { title: 'Fluxos Jurídicos', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_JUR_2" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Fluxos Jurídicos', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-jur-3': {
         slides: [
-            { title: 'Comunicação Jurídica', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_JUR_3" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Comunicação Jurídica', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-jur-4': {
         slides: [
-            { title: 'Padronizações', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_JUR_4" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Padronizações', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     // Compliance
     'mod-comp-1': {
         slides: [
-            { title: 'Ética Corporativa', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_COMP_1" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Ética Corporativa', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-comp-2': {
         slides: [
-            { title: 'LGPD', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_COMP_2" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'LGPD', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-comp-3': {
         slides: [
-            { title: 'Segurança da Informação', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_COMP_3" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Segurança da Informação', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-comp-4': {
         slides: [
-            { title: 'Conduta Profissional', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_COMP_4" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Conduta Profissional', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
     'mod-comp-5': {
         slides: [
-            { title: 'Políticas Internas', text: '<iframe src="COLE_AQUI_O_LINK_DO_SUPABASE_MOD_COMP_5" width="100%" height="600px" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" allow="autoplay"></iframe>' }
+            { title: 'Políticas Internas', text: '<div style="text-align:center;padding:3rem 1rem"><i class="fas fa-book-open" style="font-size:36px;color:#2CD5C4;display:block;margin-bottom:1rem"></i><h3 style="font-size:18px;font-weight:600;color:#003349;margin-bottom:.5rem">Conte&uacute;do em breve</h3><p style="font-size:14px;color:#78909c;line-height:1.6;max-width:320px;margin:0 auto">Este m&oacute;dulo est&aacute; sendo preparado pela equipe Canopus.</p></div>' }
         ]
     },
 };function markCompleteModuleFromPage() {
@@ -5984,7 +6035,7 @@ function loadTheme() {
     }
 }
 
-// toggleNotifications: versão completa definida abaixo (linha com painel real)
+// toggleNotifications: versão completa definida abaixo
 
 // ==================== MODALS ====================
 
@@ -5992,7 +6043,7 @@ function showAboutModal() {
     showNotification('Canopus Conecta v6.0 — Plataforma de Treinamento Canopus', 'info');
 }
 
-// viewUserDetail: versão completa com dados reais definida abaixo
+// viewUserDetail: versão completa definida abaixo
 
 // ==================== UTILITIES ====================
 
@@ -7879,139 +7930,348 @@ async function renderModuleFiles(moduleId) {
     }
 }
 
-// ==================== ENHANCED NAVIGATE TO (versão consolidada) ====================
-const _navigateToBase = navigateTo;
+// ==================== ENHANCED NAVIGATE TO (hook for FAQ loading) ====================
+
+const originalNavigateTo = navigateTo;
 navigateTo = function(page) {
-    _navigateToBase(page);
+    // Call original first
+    originalNavigateTo(page);
+
+    // Additional hooks
     if (page === 'faq') {
         setTimeout(loadFaqForUser, 300);
     }
+
     if (page.startsWith('mod-')) {
         setTimeout(() => renderModuleFiles(page), 500);
     }
 };
 
-// ==================== ENHANCED LOAD MODULE CONTENT (versão consolidada) ====================
-const _loadModuleContentBase = loadModuleContent;
+// ==================== ENHANCED LOAD MODULE CONTENT (hook for materials) ====================
+
+const originalLoadModuleContent = loadModuleContent;
 loadModuleContent = function(moduleId) {
-    _loadModuleContentBase(moduleId);
+    originalLoadModuleContent(moduleId);
+
+    // Update the PDF section to use dynamic grid
+    const slidesContainer = document.getElementById('mod-slides-container');
+    if (slidesContainer) {
+        // Check if we need to add the dynamic PDF grid
+        const existingPdfGrid = document.getElementById('mod-pdf-grid');
+        if (!existingPdfGrid) {
+            // The PDF section already exists in the HTML, just update its ID
+            const pdfSection = slidesContainer.parentElement.querySelector('.pdf-section .pdf-grid');
+            if (pdfSection) {
+                pdfSection.id = 'mod-pdf-grid';
+            }
+        }
+    }
+
+    // Load files for this module
     setTimeout(() => renderModuleFiles(moduleId), 600);
 };
 
-// ==================== ENHANCED SWITCH CM TAB (versão consolidada) ====================
-// Encadeia todas as extensões de uma vez, sem múltiplos wraps acumulados
-const _switchCmTabBase = switchCmTab;
+// ==================== ENHANCED SWITCH CM TAB (hook for FAQ admin) ====================
+
+const originalSwitchCmTab = switchCmTab;
 switchCmTab = function(tab) {
-    _switchCmTabBase(tab);
-    // FAQ admin
+    originalSwitchCmTab(tab);
     if (tab === 'faq') {
         setTimeout(loadFaqAdminList, 300);
     }
-    // Usuários corporativos
-    if (tab === 'usuarios' || tab === 'admin-users') {
-        carregarPainelUsuariosCorporativo();
-    }
 };
-</script>
 
-<script>
-(function(){
-  function normalize(){
-    try{
-      var role = (window.currentRole==='admin' || localStorage.getItem('re_admin')==='true')?'admin':'user';
-      var el=document.getElementById('sidebarUserRole');
-      var adminMenu=document.getElementById('adminMenuSection');
-      if(el){
-        if(role==='admin'){el.textContent='Administrador';el.className='user-role admin';}
-        else{el.textContent='Colaborador';el.className='user-role user';}
-      }
-      if(adminMenu) adminMenu.style.display = role==='admin'?'block':'none';
-    }catch(e){}
+// ==================== MÓDULO REL-2: COMO ATENDEMOS ====================
+function renderModRelDois(container) {
+
+var PASSOS = [
+  {
+    num:1, titulo:'Conectar', sub:'A funda&#231;&#227;o. O primeiro contato define tudo.',
+    texto:'O cliente que liga n&#227;o come&#231;a do zero. Ele j&#225; pensou no que vai perguntar e talvez esteja preocupado. O que ele precisa sentir nos primeiros segundos &#233; que chegou no lugar certo e que tem algu&#233;m presente do outro lado. Antes de qualquer solu&#231;&#227;o, vem o acolhimento. <em>Chame pelo nome. Sempre.</em>',
+    scripts:[
+      {ctx:'Por escrito ou chat', fala:'&#8220;Ol&#225;, [nome do cliente]! Bom dia/boa tarde! J&#225; darei andamento &#224; sua solicita&#231;&#227;o sobre [assunto].&#8221;'},
+      {ctx:'Ao telefone', fala:'&#8220;Ol&#225; [nome], boa tarde! Seja bem-vindo(a) ao nosso atendimento! Darei andamento &#224; sua solicita&#231;&#227;o sobre [assunto].&#8221; Lembre: sorriso na voz. O cliente n&#227;o te v&#234;, mas sente.'}
+    ],
+    evitar:['Ignorar o nome do cliente','Ir direto ao assunto sem cumprimentar','Pedir que repita o que j&#225; disse','Ser r&#237;spido ou interromp&#234;-lo','Fazer outra coisa enquanto ele fala']
+  },
+  {
+    num:2, titulo:'Compreender', sub:'A estrutura. Entender de verdade antes de responder.',
+    texto:'Atender r&#225;pido n&#227;o &#233; o mesmo que atender bem. Tem colaborador que responde antes de escutar at&#233; o fim &#8212; e a&#237; a solu&#231;&#227;o n&#227;o encaixa, o cliente fica mais frustrado. <em>Escuta ativa n&#227;o &#233; s&#243; sil&#234;ncio: &#233; mostrar que voc&#234; est&#225; presente.</em> Parafrasear o que o cliente disse &#233; uma das formas mais poderosas de fazer ele se sentir compreendido.',
+    scripts:[
+      {ctx:'Confirmando que entendeu', fala:'&#8220;Entendi, [nome]. S&#243; para garantir que estou no caminho certo &#8212; voc&#234; est&#225; buscando [resumo da necessidade], &#233; isso?&#8221;'},
+      {ctx:'Parafraseando a demanda', fala:'&#8220;[Nome], para garantir que compreendi bem, os pontos principais s&#227;o: [item 1], [item 2] e [item 3]. Estou correto(a)?&#8221;'},
+      {ctx:'Pedindo mais detalhes', fala:'&#8220;[Nome], voc&#234; pode me esclarecer sobre [ponto]?&#8221; J&#225; emende a pergunta antes que ele responda s&#243; &#8220;sim&#8221; ou &#8220;n&#227;o&#8221;.'}
+    ],
+    evitar:['Dar respostas antes de ouvir o fim','Tratar a demanda como &#243;bvia ou pequena','Interromper o cliente','Responder de forma vaga ou monossilab&#225;bica','Transferir o problema sem tentar ajudar']
+  },
+  {
+    num:3, titulo:'Engajar', sub:'A alvenaria. Criar v&#237;nculo e fortalecer a confian&#231;a.',
+    texto:'Depois que voc&#234; entendeu o que o cliente precisa, chega o momento de agir junto com ele &#8212; n&#227;o apenas executar. <em>O cliente n&#227;o quer s&#243; a solu&#231;&#227;o: ele quer saber que voc&#234; est&#225; do lado dele.</em> Um compromisso bem dado vale mais do que uma resposta r&#225;pida. Diga o que vai fazer, at&#233; quando e como vai manter ele informado.',
+    scripts:[
+      {ctx:'Comprometendo-se com o cliente', fala:'&#8220;Me comprometo em manter voc&#234; informado sobre o andamento da sua demanda.&#8221;'},
+      {ctx:'Transmitindo seguran&#231;a', fala:'&#8220;Esse &#233; um ponto muito importante, [nome]. Vou acompanhar de perto para garantir que tudo saia como esperado.&#8221;'},
+      {ctx:'Validando o que o cliente sente', fala:'&#8220;Voc&#234; tem toda raz&#227;o! Pode deixar que vou dar bastante aten&#231;&#227;o a esse ponto.&#8221;'}
+    ],
+    evitar:['&#8220;Infelizmente n&#227;o tem o que fazer&#8221; sem proposta de solu&#231;&#227;o','Encerrar sem prazo ou pr&#243;ximo passo definido','Falar &#8220;&#233; assim que funciona&#8221; em tom impositivo','Dizer que &#233; com outro setor sem tentar resolver primeiro']
+  },
+  {
+    num:4, titulo:'Confirmar', sub:'O acabamento. Revisar antes de entregar.',
+    texto:'Voc&#234; acha que est&#225; tudo resolvido, mas ser&#225; que o cliente tamb&#233;m acha? Uma d&#250;vida n&#227;o respondida hoje vira uma reclama&#231;&#227;o amanh&#227;. <em>Antes de encerrar, sempre pergunte.</em> Parece simples, mas muita gente pula essa etapa com pressa e paga caro depois.',
+    scripts:[
+      {ctx:'Confirma&#231;&#227;o padr&#227;o', fala:'&#8220;Antes de finalizarmos, quero confirmar: ficou tudo esclarecido para voc&#234;?&#8221;'},
+      {ctx:'Checando o entendimento', fala:'&#8220;Consegui esclarecer sua d&#250;vida sobre [assunto]? Ficou claro?&#8221;'},
+      {ctx:'Abrindo espa&#231;o para mais', fala:'&#8220;Ficou alguma d&#250;vida? Posso te apoiar com mais alguma coisa?&#8221;'}
+    ],
+    evitar:['Encerrar sem perguntar se ficou d&#250;vida','Apressar a finaliza&#231;&#227;o','Ficar impaciente se o cliente n&#227;o entendeu de primeira','Pular direto pro encerramento sem confirmar']
+  },
+  {
+    num:5, titulo:'Entregar', sub:'A chave na m&#227;o. Finalizar com excel&#234;ncia.',
+    texto:'A &#250;ltima impress&#227;o fica. Um cliente que foi bem atendido at&#233; o fim conta para algu&#233;m. Um cliente que sentiu que voc&#234; queria se livrar dele tamb&#233;m conta. <em>O encerramento &#233; t&#227;o importante quanto a abertura.</em> Personalize, chame pelo nome, deseje algo genu&#237;no e deixe claro que a Canopus continua &#224; disposi&#231;&#227;o.',
+    scripts:[
+      {ctx:'Encerramento caloroso', fala:'&#8220;Foi um prazer te atender, [nome]. Espero que tenha uma &#243;tima experi&#234;ncia com a Canopus! Continuamos &#224; sua disposi&#231;&#227;o.&#8221;'},
+      {ctx:'Para clientes em qualquer etapa da jornada', fala:'&#8220;Obrigado(a) pelo contato, [nome]. Nossa equipe deseja que voc&#234; tenha uma jornada tranquila com a Canopus.&#8221;'},
+      {ctx:'Para quem acabou de receber as chaves', fala:'&#8220;Parab&#233;ns pela aquisi&#231;&#227;o, [nome]! Que voc&#234; tenha muita felicidade no seu novo lar.&#8221;'}
+    ],
+    evitar:['Encerrar sem resolu&#231;&#227;o ou prazo de retorno','Dar prazo que n&#227;o vai conseguir cumprir','Finalizar antes de o cliente terminar de falar','N&#227;o refor&#231;ar que a Canopus continua dispon&#237;vel']
   }
-  var lu=window.loginUser;
-  if(typeof lu==='function'){
-    window.loginUser=async function(){localStorage.removeItem('re_admin');window.currentRole='user';var r=await lu.apply(this,arguments);setTimeout(normalize,300);setTimeout(normalize,1200);return r;}
-  }
-  var la=window.loginAdmin;
-  if(typeof la==='function'){
-    window.loginAdmin=async function(){var r=await la.apply(this,arguments);setTimeout(normalize,300);setTimeout(normalize,1200);return r;}
-  }
-  document.addEventListener('DOMContentLoaded',function(){setTimeout(normalize,800);});
-})();
-// ============================================================================
-// ADMINISTRAÇÃO REAL DE COLABORADORES E EQUIPES (SUPABASE)
-// ============================================================================
-async function carregarPainelUsuariosCorporativo() {
-    if (!supabaseClient) return;
+];
 
-    const tabela = document.getElementById('adminUsersTableBody') || document.getElementById('usersListTable') || document.querySelector('.admin-table tbody');
-    if (!tabela) return;
+var CSS = [
+'<style>',
+'.cn-wrap{font-family:Inter,sans-serif;padding:.5rem 0;overflow-x:hidden}',
+'.cn-badge{display:inline-flex;align-items:center;gap:6px;background:#f0f4f4;border:1px solid #e2e8f0;border-radius:10px;padding:4px 12px;font-size:12px;color:#5a6b7c;margin-bottom:1rem}',
+'.cn-titulo{font-size:20px;font-weight:700;color:#003C50;margin-bottom:.6rem;line-height:1.3}',
+'.cn-intro{font-size:14px;color:#5a6b7c;line-height:1.8;margin-bottom:1.2rem}',
+'.cn-pbar{height:3px;background:#e2e8f0;border-radius:2px;margin-bottom:1rem;overflow:hidden}',
+'.cn-pbar-fill{height:3px;background:#003349;border-radius:2px;transition:width .5s ease}',
+'.cn-snav-wrap{display:flex;gap:6px;margin-bottom:1.2rem;flex-wrap:wrap}',
+'.cn-snav{padding:6px 13px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;font-size:12px;font-weight:600;color:#5a6b7c;cursor:pointer;transition:all .25s;font-family:Inter,sans-serif}',
+'.cn-snav.ativo{background:#003349;color:#fff;border-color:#003349}',
+'.cn-snav.feito{background:#e6f7f6;color:#0F6E56;border-color:#1DBCB0}',
+'.cn-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:1rem}',
+'.cn-topo{padding:16px 20px;background:#003349;display:flex;align-items:center;gap:16px}',
+'.cn-num{font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:3px;text-transform:uppercase;letter-spacing:.07em}',
+'.cn-ptit{font-size:16px;font-weight:600;color:#fff;margin-bottom:2px}',
+'.cn-psub{font-size:12px;color:rgba(255,255,255,0.6);line-height:1.4}',
+'.cn-corpo{padding:18px 20px}',
+'.cn-texto{font-size:14px;color:#5a6b7c;line-height:1.8;margin-bottom:16px}',
+'.cn-texto em{font-style:normal;color:#1a2b3c;font-weight:600}',
+'.cn-stit{font-size:11px;color:#78A0A0;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}',
+'.cn-script{background:#e6f7f6;border-radius:10px;padding:11px 14px;margin-bottom:7px}',
+'.cn-sctx{font-size:10px;color:#0F6E56;margin-bottom:4px;font-weight:700;text-transform:uppercase}',
+'.cn-sfala{font-size:13px;color:#085041;line-height:1.6;font-style:italic}',
+'.cn-atencao{background:#f0f4f4;border-radius:10px;padding:13px 15px;margin-top:12px}',
+'.cn-atit{font-size:11px;color:#78A0A0;margin-bottom:7px;font-weight:600;text-transform:uppercase}',
+'.cn-aitem{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#5a6b7c;line-height:1.6;padding:2px 0}',
+'.cn-aitem-x{color:#dc2626;font-weight:700;flex-shrink:0}',
+'.cn-caso{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:18px;margin-bottom:1rem}',
+'.cn-clbl{font-size:11px;font-weight:700;color:#003349;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}',
+'.cn-ctxt{font-size:14px;color:#5a6b7c;line-height:1.7;margin-bottom:14px;font-style:italic;padding:11px 14px;background:#f0f4f4;border-radius:10px}',
+'.cn-cperg{font-size:14px;font-weight:600;color:#1a2b3c;margin-bottom:12px;line-height:1.5}',
+'.cn-opts{display:flex;flex-direction:column;gap:7px;margin-bottom:6px}',
+'.cn-opt{display:flex;align-items:flex-start;gap:9px;padding:10px 13px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;font-size:13px;color:#1a2b3c;line-height:1.4;text-align:left;width:100%;transition:all .2s;font-family:Inter,sans-serif}',
+'.cn-opt:hover:not(:disabled){border-color:#003349;background:#f0f4f4}',
+'.cn-opt.certa{border-color:#1DBCB0;background:#e6f7f6;color:#085041}',
+'.cn-opt.errada{border-color:#fca5a5;background:#fef2f2;color:#991b1b}',
+'.cn-ol{width:22px;height:22px;border-radius:50%;background:#f0f4f4;font-size:11px;font-weight:700;color:#5a6b7c;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}',
+'.cn-opt.certa .cn-ol{background:#1DBCB0;color:#fff}',
+'.cn-opt.errada .cn-ol{background:#fca5a5;color:#fff}',
+'.cn-fb{font-size:13px;padding:11px 14px;border-radius:10px;margin-top:9px;line-height:1.6;display:none}',
+'.cn-fb.show{display:block}',
+'.cn-fb.ok{background:#e6f7f6;color:#085041;border:1px solid #1DBCB0}',
+'.cn-fb.err{background:#fef2f2;color:#991b1b;border:1px solid #fca5a5}',
+'.cn-chklist{display:flex;flex-direction:column;gap:7px}',
+'.cn-chk{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;background:#f0f4f4;border-radius:10px;cursor:pointer;transition:background .2s}',
+'.cn-chk.feito{background:#e6f7f6}',
+'.cn-chkbox{width:20px;height:20px;border-radius:4px;border:1px solid #e2e8f0;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all .2s;font-size:14px;color:#fff}',
+'.cn-chk.feito .cn-chkbox{background:#003349;border-color:#003349}',
+'.cn-chk-txt{font-size:13px;color:#1a2b3c;line-height:1.6}',
+'.cn-chk-txt b{font-weight:600}',
+'.cn-chk.feito .cn-chk-txt{color:#78A0A0;text-decoration:line-through}',
+'.cn-chkpct{font-size:12px;color:#78A0A0;text-align:right;margin-top:9px}',
+'.cn-nav{display:flex;justify-content:space-between;align-items:center;margin-top:1rem}',
+'.cn-navlbl{font-size:12px;color:#78A0A0}',
+'.cn-btn{display:flex;align-items:center;gap:5px;padding:8px 16px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;font-size:13px;color:#1a2b3c;cursor:pointer;transition:all .2s;font-family:Inter,sans-serif}',
+'.cn-btn.p{background:#003349;color:#fff;border-color:#003349}',
+'.cn-btn.p:hover{background:#004d6b}',
+'.cn-btn:disabled{opacity:.35;cursor:not-allowed}',
+'.cn-fade-in{animation:cnFadeIn .35s ease both}',
+'.cn-slide-up{animation:cnSlideUp .35s ease both}',
+'@keyframes cnFadeIn{from{opacity:0}to{opacity:1}}',
+'@keyframes cnSlideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}',
+'@media(max-width:600px){.cn-snav{font-size:11px;padding:5px 9px}.cn-titulo{font-size:17px}.cn-topo{padding:12px 14px}.cn-corpo{padding:14px 16px}}</style>'
+].join('');
 
-    tabela.innerHTML = '<tr><td colspan="6" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Acessando os dados no Supabase...</td></tr>';
-
-    try {
-        const { data: lista, error } = await supabaseClient
-            .from('profiles')
-            .select('*')
-            .order('nome');
-
-        if (error) throw error;
-
-        tabela.innerHTML = '';
-
-        if (!lista || lista.length === 0) {
-            tabela.innerHTML = '<tr><td colspan="6" style="text-align:center;">Nenhum colaborador encontrado.</td></tr>';
-            return;
-        }
-
-        lista.forEach(user => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <div style="width:30px; height:30px; border-radius:50%; background:var(--azul-escuro); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:11px;">
-                            ${user.nome ? user.nome.charAt(0).toUpperCase() : 'U'}
-                        </div>
-                        <div>
-                            <div style="font-weight:600;">${user.nome || 'Sem Nome'}</div>
-                            <div style="font-size:11px; color:var(--cinza);">${user.email}</div>
-                        </div>
-                    </div>
-                </td>
-                <td>${user.cargo || 'Não configurado'}</td>
-                <td>${user.departamento || 'Geral'}</td>
-                <td><span class="status-badge ${user.perfil === 'admin' ? 'active' : ''}" style="background:${user.perfil === 'admin' ? '#f59e0b' : '#1dbcb0'}; color:white; padding:3px 8px; border-radius:12px; font-size:10px; font-weight:700;">${String(user.perfil).toUpperCase()}</span></td>
-                <td><span class="status-badge" style="background:${user.ativo === 'ativo' ? '#d1fae5' : '#fee2e2'}; color:${user.ativo === 'ativo' ? '#065f46' : '#991b1b'}; padding:3px 8px; border-radius:12px; font-size:10px; font-weight:700;">${String(user.ativo).toUpperCase()}</span></td>
-                <td>
-                    <button onclick="showUserDetailModalFromDb('${user.id}')" style="background:none; border:none; color:var(--azul-medio); cursor:pointer;"><i class="fas fa-eye"></i> Ver</button>
-                </td>
-            `;
-            tabela.appendChild(tr);
-        });
-
-    } catch (err) {
-        console.error('Erro ao carregar lista de usuários:', err);
-        tabela.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;"><i class="fas fa-exclamation-triangle"></i> Falha ao ler dados do Supabase.</td></tr>';
+function cnTijolo(n) {
+    var F='#C8502A', S='#9B3A1C', T='#E8724A';
+    function tj(x,y,w,h){
+        return '<polygon points="'+x+','+y+' '+(x+w)+','+y+' '+(x+w+5)+','+(y-4)+' '+(x+5)+','+(y-4)+'" fill="'+T+'"/>'
+             + '<polygon points="'+(x+w)+','+y+' '+(x+w)+','+(y+h)+' '+(x+w+5)+','+(y+h-4)+' '+(x+w+5)+','+(y-4)+'" fill="'+S+'"/>'
+             + '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+F+'"/>';
     }
+    var W=52, H=14, g=3, hw=24, rows=[], svg='';
+    for(var i=0; i<n; i++) {
+        var y=(H+g)*i;
+        if(i%2===0) rows.push({full:true, y:y});
+        else rows.push({full:false, y:y});
+    }
+    rows.forEach(function(r){
+        svg += r.full ? tj(0,r.y,W,H) : tj(0,r.y,hw,H)+tj(hw+g,r.y,hw-g,H);
+    });
+    var totalH=(H+g)*n+8;
+    return '<svg width="62" height="'+totalH+'" viewBox="-4 -6 66 '+totalH+'" xmlns="http://www.w3.org/2000/svg">'+svg+'</svg>';
 }
 
-// switchCmTab já consolidada acima — sem redefinição adicional
-
-// Detalhes do usuário vindos do banco de dados ao clicar em "Ver"
-async function showUserDetailModalFromDb(userId) {
-    try {
-        const { data: user, error } = await supabaseClient.from('profiles').select('*').eq('id', userId).single();
-        if (error || !user) return;
-        
-        if (typeof window.showUserDetailModal === 'function') {
-            window.showUserDetailModal(user.email);
-        } else {
-            alert(`Colaborador: ${user.nome}\nE-mail: ${user.email}\nPerfil: ${user.perfil}`);
-        }
-    } catch (e) {
-        console.error(e);
+function cnRenderPasso(i) {
+    window.cnAtual = i;
+    var p = PASSOS[i];
+    var pct = Math.round(((i+1)/5)*100);
+    document.getElementById('cn-pb').style.width = pct+'%';
+    document.getElementById('cn-lbl').textContent = 'Passo '+(i+1)+' de 5';
+    document.getElementById('cn-ant').disabled = (i===0);
+    var bp = document.getElementById('cn-prox');
+    if(i===4){
+        bp.innerHTML = 'Estudo de caso &rarr;';
+        bp.onclick = window.cnIrCaso;
+    } else {
+        bp.innerHTML = 'Pr&oacute;ximo &rarr;';
+        bp.onclick = function(){ window.cnNav(1); };
     }
+    document.querySelectorAll('.cn-snav').forEach(function(b,idx){
+        b.classList.remove('ativo','feito');
+        if(idx<i) b.classList.add('feito');
+        if(idx===i) b.classList.add('ativo');
+    });
+    var sc = p.scripts.map(function(s){
+        return '<div class="cn-script"><div class="cn-sctx">'+s.ctx+'</div><div class="cn-sfala">'+s.fala+'</div></div>';
+    }).join('');
+    var ev = p.evitar.map(function(e){
+        return '<div class="cn-aitem"><span class="cn-aitem-x">&#10007;</span><span>'+e+'</span></div>';
+    }).join('');
+    document.getElementById('cn-passo').innerHTML =
+        '<div class="cn-card cn-fade-in">'
+        +'<div class="cn-topo">'+cnTijolo(i+1)
+        +'<div><div class="cn-num">Passo '+p.num+' de 5</div>'
+        +'<div class="cn-ptit">'+p.titulo+'</div>'
+        +'<div class="cn-psub">'+p.sub+'</div></div></div>'
+        +'<div class="cn-corpo">'
+        +'<div class="cn-texto cn-slide-up">'+p.texto+'</div>'
+        +'<div class="cn-stit cn-slide-up">Como fazer na pr&aacute;tica</div>'+sc
+        +'<div class="cn-atencao cn-slide-up"><div class="cn-atit">O que nunca fazer</div>'+ev+'</div>'
+        +'</div></div>';
 }
+
+var HTML_BASE = CSS
+    + '<div class="cn-wrap">'
+    + '<div id="cn-conteudo">'
+    + '<div class="cn-badge">Relacionamento &middot; M&oacute;dulo 2</div>'
+    + '<div class="cn-titulo">Como atendemos na Canopus</div>'
+    + '<div class="cn-intro">Aqui na Canopus, atender bem n&atilde;o &eacute; talento, &eacute; m&eacute;todo. Todo atendimento segue 5 passos. Pensa numa obra: voc&ecirc; n&atilde;o coloca o acabamento antes da funda&ccedil;&atilde;o. No atendimento &eacute; igual.</div>'
+    + '<div class="cn-pbar"><div class="cn-pbar-fill" id="cn-pb" style="width:20%"></div></div>'
+    + '<div class="cn-snav-wrap">'
+    + '<button class="cn-snav ativo" onclick="cnIr(0)">1. Conectar</button>'
+    + '<button class="cn-snav" onclick="cnIr(1)">2. Compreender</button>'
+    + '<button class="cn-snav" onclick="cnIr(2)">3. Engajar</button>'
+    + '<button class="cn-snav" onclick="cnIr(3)">4. Confirmar</button>'
+    + '<button class="cn-snav" onclick="cnIr(4)">5. Entregar</button>'
+    + '</div>'
+    + '<div id="cn-passo"></div>'
+    + '<div class="cn-nav">'
+    + '<button class="cn-btn" id="cn-ant" onclick="cnNav(-1)" disabled>&larr; Anterior</button>'
+    + '<span class="cn-navlbl" id="cn-lbl">Passo 1 de 5</span>'
+    + '<button class="cn-btn p" id="cn-prox">Pr&oacute;ximo &rarr;</button>'
+    + '</div></div>'
+    + '<div id="cn-caso" style="display:none">'
+    + '<div class="cn-badge">Estudo de caso</div>'
+    + '<div class="cn-titulo">Agora &eacute; com voc&ecirc;</div>'
+    + '<div class="cn-intro">Voc&ecirc; aprendeu os 5 passos. Leia a situa&ccedil;&atilde;o abaixo e escolha como voc&ecirc; responderia.</div>'
+    + '<div class="cn-caso"><div class="cn-clbl">Situa&ccedil;&atilde;o real</div>'
+    + '<div class="cn-ctxt">Carlos liga irritado dizendo que o boleto do apartamento venceu ontem e o site n&atilde;o aceita o pagamento. Ele tentou tr&ecirc;s vezes e teme ter o nome negativado.</div>'
+    + '<div class="cn-cperg">Qual &eacute; a sua primeira resposta ao Carlos?</div>'
+    + '<div class="cn-opts">'
+    + '<button class="cn-opt" onclick="cnResp(0)"><span class="cn-ol">A</span>&#8220;Carlos, o sistema &agrave;s vezes apresenta instabilidades. O senhor pode pagar na ag&ecirc;ncia banc&aacute;ria.&#8221;</button>'
+    + '<button class="cn-opt" onclick="cnResp(1)"><span class="cn-ol">B</span>&#8220;Ol&aacute;, Carlos! J&aacute; vou cuidar da sua solicita&ccedil;&atilde;o. Entendo que voc&ecirc; tentou tr&ecirc;s vezes e n&atilde;o conseguiu &#8212; isso &eacute; frustrante. Me conta o que aparece na tela quando voc&ecirc; tenta pagar.&#8221;</button>'
+    + '<button class="cn-opt" onclick="cnResp(2)"><span class="cn-ol">C</span>&#8220;Carlos, esse assunto &eacute; com o setor financeiro. Vou transferir sua liga&ccedil;&atilde;o.&#8221;</button>'
+    + '<button class="cn-opt" onclick="cnResp(3)"><span class="cn-ol">D</span>&#8220;Bom dia! Como o boleto venceu ontem, j&aacute; h&aacute; juros. Posso gerar uma segunda via.&#8221;</button>'
+    + '</div><div class="cn-fb" id="cn-fb"></div></div>'
+    + '<div class="cn-nav">'
+    + '<button class="cn-btn" onclick="cnVoltarC()">&larr; Voltar</button>'
+    + '<button class="cn-btn p" id="cn-irchk" onclick="cnIrChk()" disabled>Checklist &rarr;</button>'
+    + '</div></div>'
+    + '<div id="cn-chk" style="display:none">'
+    + '<div class="cn-badge">Checklist pr&aacute;tico</div>'
+    + '<div class="cn-titulo">Antes de encerrar cada atendimento</div>'
+    + '<div class="cn-intro">Nos primeiros dias pode parecer trabalhoso, mas com o tempo esses 5 passos viram autom&aacute;tico &#8212; e o cliente percebe a diferen&ccedil;a.</div>'
+    + '<div class="cn-chklist">'
+    + '<div class="cn-chk" onclick="cnMc(0)"><div class="cn-chkbox" id="cnck0"></div><div class="cn-chk-txt"><b>Conectar.</b> Cumprimentei o cliente pelo nome com simpatia e sinalizei que j&aacute; estou cuidando da demanda dele.</div></div>'
+    + '<div class="cn-chk" onclick="cnMc(1)"><div class="cn-chkbox" id="cnck1"></div><div class="cn-chk-txt"><b>Compreender.</b> Deixei o cliente falar at&eacute; o fim, parafraseei o que entendi e confirmei antes de partir para a solu&ccedil;&atilde;o.</div></div>'
+    + '<div class="cn-chk" onclick="cnMc(2)"><div class="cn-chkbox" id="cnck2"></div><div class="cn-chk-txt"><b>Engajar.</b> Me comprometi com o que vou fazer, disse o prazo e transmiti seguran&ccedil;a ao cliente.</div></div>'
+    + '<div class="cn-chk" onclick="cnMc(3)"><div class="cn-chkbox" id="cnck3"></div><div class="cn-chk-txt"><b>Confirmar.</b> Perguntei se ficou alguma d&uacute;vida antes de encerrar e n&atilde;o assumi que estava tudo certo.</div></div>'
+    + '<div class="cn-chk" onclick="cnMc(4)"><div class="cn-chkbox" id="cnck4"></div><div class="cn-chk-txt"><b>Entregar.</b> Finalizei com calor humano, chamei o cliente pelo nome e reafirmei que estamos &agrave; disposi&ccedil;&atilde;o.</div></div>'
+    + '<div class="cn-chk" onclick="cnMc(5)"><div class="cn-chkbox" id="cnck5"></div><div class="cn-chk-txt"><b>Postura Canopus.</b> Mantive tom amig&aacute;vel e profissional o tempo todo, pr&oacute;ximo sem ser informal demais e nunca rob&oacute;tico.</div></div>'
+    + '</div>'
+    + '<div class="cn-chkpct" id="cn-chkpct">0 de 6 itens</div>'
+    + '<div class="cn-nav"><button class="cn-btn" onclick="cnVoltarChk()">&larr; Voltar</button></div>'
+    + '</div></div>';
+
+container.innerHTML = HTML_BASE;
+
+window.cnAtual = 0;
+window.cnQDone = false;
+window.cnChks = [false,false,false,false,false,false];
+
+window.cnIr = function(i){ cnRenderPasso(i); };
+window.cnNav = function(d){ var n=window.cnAtual+d; if(n>=0&&n<=4) cnRenderPasso(n); };
+window.cnIrCaso = function(){
+    document.getElementById('cn-conteudo').style.display='none';
+    document.getElementById('cn-caso').style.display='block';
+};
+window.cnVoltarC = function(){
+    document.getElementById('cn-caso').style.display='none';
+    document.getElementById('cn-conteudo').style.display='block';
+    cnRenderPasso(4);
+};
+window.cnIrChk = function(){
+    document.getElementById('cn-caso').style.display='none';
+    document.getElementById('cn-chk').style.display='block';
+};
+window.cnVoltarChk = function(){
+    document.getElementById('cn-chk').style.display='none';
+    document.getElementById('cn-caso').style.display='block';
+};
+
+var RESPOSTAS = [
+    {c:false, f:'Voc&ecirc; foi direto para a solu&ccedil;&atilde;o sem passar pelo Conectar. O Carlos est&aacute; com medo de ter o nome negativado &#8212; ele precisa primeiro sentir que algu&eacute;m entende a urg&ecirc;ncia que ele sente.'},
+    {c:true,  f:'Esse &eacute; o jeito Canopus! Voc&ecirc; aplicou o Conectar chamando pelo nome e o Compreender reconhecendo o esfor&ccedil;o dele. A solu&ccedil;&atilde;o vem depois &#8212; e quando vier, o Carlos j&aacute; vai estar mais tranquilo para ouvir.'},
+    {c:false, f:'Transfer&ecirc;ncia prematura. O Carlos vai ter que repetir tudo de novo para outra pessoa e vai sair dessa liga&ccedil;&atilde;o mais frustrado do que entrou.'},
+    {c:false, f:'Falar em juros antes de acolher o cliente ansioso piora a situa&ccedil;&atilde;o. A informa&ccedil;&atilde;o est&aacute; correta, mas o momento est&aacute; errado. Conectar primeiro, informar depois.'}
+];
+
+window.cnResp = function(i) {
+    if(window.cnQDone) return;
+    window.cnQDone = true;
+    var r = RESPOSTAS[i];
+    document.querySelectorAll('.cn-opt').forEach(function(el,idx){
+        el.disabled = true;
+        if(RESPOSTAS[idx].c) el.classList.add('certa');
+        else if(idx===i && !r.c) el.classList.add('errada');
+    });
+    var fb = document.getElementById('cn-fb');
+    fb.className = 'cn-fb show '+(r.c?'ok':'err');
+    fb.innerHTML = (r.c?'&#10003; ':'&#10007; ') + r.f;
+    if(r.c) document.getElementById('cn-irchk').disabled = false;
+};
+
+window.cnMc = function(i) {
+    window.cnChks[i] = !window.cnChks[i];
+    document.querySelectorAll('.cn-chk')[i].classList.toggle('feito', window.cnChks[i]);
+    document.getElementById('cnck'+i).innerHTML = window.cnChks[i] ? '&#10003;' : '';
+    document.getElementById('cn-chkpct').textContent = window.cnChks.filter(Boolean).length + ' de 6 itens';
+};
+
+cnRenderPasso(0);
+}
+
 </script>
 
 </body>
