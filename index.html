@@ -71,9 +71,9 @@ input, textarea, select { font-size: 16px; }
 .sidebar-logo { width: 60px; height: 60px; background: var(--turquesa); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; font-size: 28px; color: white; box-shadow: 0 4px 15px rgba(29,188,176,0.4); }
 .sidebar-title { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 600; color: white; letter-spacing: 0.5px; }
 .sidebar-subtitle { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 4px; font-weight: 300; }
-.user-info { padding: 12px 16px; margin: 12px 12px 0; background: rgba(255,255,255,0.08); border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.1); }
-.user-info .user-name { font-size: 13px; font-weight: 600; color: white; }
-.user-info .user-email { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+.user-info { padding: 12px 16px; margin: 12px 12px 0; background: rgba(255,255,255,0.08); border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.1); text-align: center; display: flex; flex-direction: column; align-items: center; }
+.user-info .user-name { font-size: 13px; font-weight: 600; color: white; text-align: center; width: 100%; }
+.user-info .user-email { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; text-align: center; width: 100%; }
 .user-info .user-role { display: inline-block; margin-top: 6px; padding: 2px 8px; border-radius: 50px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 .user-role.admin { background: rgba(245,158,11,0.2); color: #fbbf24; }
 .user-role.user { background: rgba(29,188,176,0.2); color: var(--turquesa); }
@@ -101,7 +101,7 @@ input, textarea, select { font-size: 16px; }
 .sidebar-footer a i { width: 20px; margin-right: 10px; font-size: 13px; }
 
 /* MAIN */
-.main-content { margin-left: 280px; min-height: 100vh; min-height: 100dvh; transition: var(--transition); max-width: 100vw; overflow-x: hidden; }
+.main-content { margin-left: 280px; min-height: 100vh; min-height: 100dvh; transition: var(--transition); width: calc(100vw - 280px); max-width: calc(100vw - 280px); overflow-x: hidden; box-sizing: border-box; }
 
 /* TOP BAR */
 .top-bar { position: sticky; top: 0; background: rgba(240,244,244,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; z-index: 100; border-bottom: 1px solid var(--borda); }
@@ -117,10 +117,10 @@ input, textarea, select { font-size: 16px; }
 .top-btn:hover { background: var(--turquesa-light); border-color: var(--turquesa); color: var(--turquesa); }
 
 /* CONTENT */
-.content-area { padding: 32px; max-width: 1200px; }
+.content-area { padding: 32px 40px 32px 40px; max-width: 100%; width: 100%; box-sizing: border-box; overflow-x: hidden; }
 
 /* PAGE HEADER */
-.page-header { margin-bottom: 32px; }
+.page-header { margin-bottom: 32px; padding-top: 12px; }
 .page-header h1 { font-family: 'Oswald', sans-serif; font-size: 32px; font-weight: 700; color: var(--azul-escuro); margin-bottom: 8px; letter-spacing: -0.5px; }
 .page-header p { color: var(--texto-leve); font-size: 15px; max-width: 600px; }
 .page-header .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: var(--turquesa-light); color: var(--turquesa-dark); border-radius: 50px; font-size: 12px; font-weight: 600; margin-bottom: 16px; }
@@ -243,7 +243,7 @@ input, textarea, select { font-size: 16px; }
 .faq-answer-content a:hover { text-decoration: underline; }
 
 /* HERO */
-.hero { background: linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul-medio) 100%); border-radius: var(--radius); padding: 48px 40px; margin-bottom: 32px; position: relative; overflow: hidden; color: white; }
+.hero { background: linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul-medio) 100%); border-radius: var(--radius); padding: 40px 36px; margin-bottom: 32px; position: relative; overflow: hidden; color: white; width: 100%; box-sizing: border-box; }
 .hero::before { content: ''; position: absolute; top: -50%; right: -20%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(29,188,176,0.2) 0%, transparent 70%); border-radius: 50%; }
 .hero-content { position: relative; z-index: 1; }
 .hero h1 { font-family: 'Oswald', sans-serif; font-size: 36px; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.5px; }
@@ -992,6 +992,74 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
 }
 .content-area, .page-section, .main-content { overflow-x: hidden; }
 
+
+/* ==================== RESPONSIVIDADE CANOPUS CONECTA ==================== */
+
+/* Todos os elementos respeitam a largura do container */
+*, *::before, *::after { box-sizing: border-box; }
+body { overflow-x: hidden; }
+img, iframe, video, svg { max-width: 100%; }
+.content-area, .page-section, .main-content { overflow-x: hidden; }
+
+/* Desktop grande (sidebar visível) */
+@media (min-width: 769px) {
+    .main-content { margin-left: 280px; width: calc(100vw - 280px); }
+    .site-footer { margin-left: 280px; }
+}
+
+/* Tablet e mobile (sidebar colapsa) */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        height: 100%;
+        z-index: 300;
+        transition: left .3s ease;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+    }
+    .sidebar.mobile-open { left: 0; }
+    .main-content {
+        margin-left: 0 !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        padding: 0 !important;
+    }
+    .content-area { padding: 16px !important; }
+    .site-footer { margin-left: 0 !important; }
+    .top-bar { padding: 10px 16px !important; }
+    .hero { padding: 28px 20px !important; border-radius: 12px !important; }
+    .hero h1 { font-size: 22px !important; }
+    .hero p { font-size: 14px !important; }
+    .page-header h1 { font-size: 22px !important; }
+    .page-header { padding-top: 8px !important; margin-bottom: 20px !important; }
+    .dashboard-grid { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+    .cards-grid { grid-template-columns: 1fr !important; }
+    .trail-modules-grid { grid-template-columns: 1fr !important; }
+    .card { padding: 16px !important; }
+    .modal-content { width: 95vw !important; max-width: 95vw !important; margin: 10px auto !important; max-height: 90vh; overflow-y: auto; }
+    table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .cm-tabs { overflow-x: auto; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch; }
+    .cn-snav-wrap { gap: 4px !important; }
+    .cn-snav { padding: 5px 9px !important; font-size: 11px !important; }
+}
+
+/* Smartphone pequeno */
+@media (max-width: 480px) {
+    .content-area { padding: 12px !important; }
+    .dashboard-grid { grid-template-columns: 1fr !important; }
+    .hero h1 { font-size: 20px !important; }
+    .page-header h1 { font-size: 18px !important; }
+    .top-bar .search-box { display: none !important; }
+    .top-bar { padding: 8px 12px !important; }
+    .hero { padding: 20px 14px !important; }
+    .hero-stats { flex-wrap: wrap; gap: 16px !important; }
+    .cn-topo { padding: 12px 14px !important; }
+    .cn-corpo { padding: 12px 14px !important; }
+    .cn-titulo { font-size: 17px !important; }
+    .cn-intro { font-size: 13px !important; }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
 <!-- base target removido -->
@@ -1192,9 +1260,7 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
 <main class="main-content" id="mainContent" style="display:none;">
     <!-- TOP BAR -->
     <div class="top-bar">
-        <div class="breadcrumb">
-            <span id="breadcrumbText">Dashboard</span>
-        </div>
+        <div style="display:flex;align-items:center;gap:12px"><button id="mobile-menu-btn" onclick="toggleMobileSidebar()" style="display:none;background:none;border:none;cursor:pointer;padding:4px;color:var(--azul-escuro)" aria-label="Menu"><i class="fas fa-bars" style="font-size:20px"></i></button><div class="breadcrumb"><span id="breadcrumbText">Dashboard</span></div></div>
         <div class="top-actions">
             <div class="search-box">
                 <i class="fas fa-search"></i>
@@ -2896,7 +2962,7 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
                 <div class="card animate-in delay-1" id="card-rel-7" onclick="navigateTo('mod-rel-7')">
                     <div class="card-icon-main turquesa"><i class="fas fa-project-diagram"></i></div>
                     <h3>7. Fluxos Operacionais</h3>
-                    <p>Processos, checklists e procedimentos do dia a dia do relacionamento.</p>
+                    <p>Processos, encerramentos e procedimentos do dia a dia do relacionamento.</p>
                     <div class="card-footer">
                         <span class="card-count"><i class="fas fa-clock"></i> 40 min</span>
                         <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
@@ -2963,7 +3029,7 @@ body, .dashboard-card, .card, .media-card, .faq-section, .pdf-section,
                 <div class="card animate-in delay-2" id="card-astec-2" onclick="navigateTo('mod-astec-2')">
                     <div class="card-icon-main azul"><i class="fas fa-search"></i></div>
                     <h3>2. Vistorias</h3>
-                    <p>Procedimentos de vistoria técnica, checklists e documentação.</p>
+                    <p>Procedimentos de vistoria técnica, encerramentos e documentação.</p>
                     <div class="card-footer">
                         <span class="card-count"><i class="fas fa-clock"></i> 35 min</span>
                         <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
@@ -4758,13 +4824,13 @@ function loadModuleContent(moduleId) {
         'mod-rel-4': { title: 'Comunicação Profissional', icon: 'fa-comment-dots', desc: 'Protocolos de comunicação verbal e não verbal em todos os canais.', trail: 'Relacionamento' },
         'mod-rel-5': { title: 'Gestão de Conflitos', icon: 'fa-balance-scale-right', desc: 'Estratégias de negociação, mediação e resolução de situações delicadas.', trail: 'Relacionamento' },
         'mod-rel-6': { title: 'SLA e Prazos', icon: 'fa-stopwatch', desc: 'Gerenciamento de tempos de resposta, escalação e cumprimento de acordos.', trail: 'Relacionamento' },
-        'mod-rel-7': { title: 'Fluxos Operacionais', icon: 'fa-project-diagram', desc: 'Processos, checklists e procedimentos do dia a dia do relacionamento.', trail: 'Relacionamento' },
+        'mod-rel-7': { title: 'Fluxos Operacionais', icon: 'fa-project-diagram', desc: 'Processos, encerramentos e procedimentos do dia a dia do relacionamento.', trail: 'Relacionamento' },
         'mod-rel-8': { title: 'Sistemas Internos', icon: 'fa-desktop', desc: 'Treinamento prático nas plataformas e ferramentas utilizadas pela área.', trail: 'Relacionamento' },
         'mod-rel-9': { title: 'Modelos de Resposta', icon: 'fa-reply-all', desc: 'Templates, scripts e respostas padronizadas para situações recorrentes.', trail: 'Relacionamento' },
         'mod-rel-10': { title: 'FAQ Operacional', icon: 'fa-question-circle', desc: 'Perguntas e respostas rápidas para o dia a dia operacional.', trail: 'Relacionamento' },
         // ASTEC
         'mod-astec-1': { title: 'Fluxo de Assistência Técnica', icon: 'fa-clipboard-list', desc: 'Processo completo de abertura, acompanhamento e encerramento de assistências.', trail: 'Relacionamento — ASTEC' },
-        'mod-astec-2': { title: 'Vistorias', icon: 'fa-search', desc: 'Procedimentos de vistoria técnica, checklists e documentação.', trail: 'Relacionamento — ASTEC' },
+        'mod-astec-2': { title: 'Vistorias', icon: 'fa-search', desc: 'Procedimentos de vistoria técnica, encerramentos e documentação.', trail: 'Relacionamento — ASTEC' },
         'mod-astec-3': { title: 'Garantias', icon: 'fa-shield-alt', desc: 'Gestão de garantias, prazos legais e comunicação com o cliente.', trail: 'Relacionamento — ASTEC' },
         'mod-astec-4': { title: 'Chamados', icon: 'fa-ticket-alt', desc: 'Abertura, priorização, acompanhamento e resolução de chamados técnicos.', trail: 'Relacionamento — ASTEC' },
         'mod-astec-5': { title: 'SLA Técnico', icon: 'fa-clock', desc: 'Prazos de atendimento técnico, escalação e indicadores de performance.', trail: 'Relacionamento — ASTEC' },
@@ -4829,6 +4895,14 @@ function loadModuleSlides(moduleId, data) {
     // Módulos com conteúdo interativo customizado
     if (moduleId === 'mod-rel-2') {
         renderModRelDois(slidesContainer);
+        return;
+    }
+    if (moduleId === 'mod-rel-3') {
+        renderModRelTres(slidesContainer);
+        return;
+    }
+    if (moduleId === 'mod-rel-4') {
+        renderModRelQuatro(slidesContainer);
         return;
     }
 
@@ -7930,6 +8004,568 @@ async function renderModuleFiles(moduleId) {
     }
 }
 
+// MÓDULO 3 — Perfis de Cliente
+// Baseado no material ACT: 4 estilos de comunicação (Controlador, Analítico, Amigável, Expressivo)
+// Adaptado para contexto Canopus
+
+function renderModRelTres(container) {
+
+var LOGO = '<svg width="40" height="40" viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="l3T" x1="0" y1="0" x2="1" y2="0.4"><stop offset="0%" stop-color="#2CD5C4"/><stop offset="100%" stop-color="#00B8D4"/></linearGradient><linearGradient id="l3M" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#18C8C0"/><stop offset="100%" stop-color="#0090A8"/></linearGradient><linearGradient id="l3B" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#10BDB8"/><stop offset="100%" stop-color="#007A90"/></linearGradient></defs><polygon points="22,36 78,36 92,18 36,18" fill="url(#l3T)"/><rect x="22" y="36" width="18" height="56" fill="url(#l3M)"/><rect x="40" y="36" width="38" height="38" fill="url(#l3M)"/><rect x="52" y="36" width="26" height="26" fill="#003349"/><circle cx="67" cy="44" r="10" fill="#1ABED0"/><circle cx="67" cy="44" r="5.5" fill="#003349" opacity="0.75"/><polygon points="40,74 72,74 86,92 40,92" fill="url(#l3B)"/></svg>';
+
+var PERFIS = [
+  {
+    id: 'controlador',
+    nome: 'Controlador',
+    icone: '&#9654;',
+    cor: '#E74C3C',
+    corClaro: '#FDECEA',
+    palavras: 'Objetivo &bull; Direto &bull; Decisivo &bull; Exigente',
+    descricao: 'O cliente Controlador sabe exatamente o que quer e tem pressa para conseguir. Ele foca em resultados, n&atilde;o em conversa. N&atilde;o &eacute; grosseiro &mdash; &eacute; eficiente. Ele valoriza quem &eacute; t&atilde;o direto quanto ele.',
+    como: 'V&aacute; direto ao ponto. Evite enrolacao e rodeios. Apresente solu&ccedil;&otilde;es, n&atilde;o desculpas. Use dados e fatos. Confirme prazos e cumpra. Respeite o tempo dele acima de tudo.',
+    scripts: [
+      { ctx: 'Abertura eficiente', fala: '&ldquo;[Nome], boa tarde! Vou direto ao ponto: sua solicita&ccedil;&atilde;o &eacute; [resumo]. J&aacute; estou tomando as provid&ecirc;ncias e retorno at&eacute; [hora/data] com a solu&ccedil;&atilde;o.&rdquo;' },
+      { ctx: 'Quando ele est&aacute; impaciente', fala: '&ldquo;Entendo, [nome]. Vou acelerar o processo. Retorno em [prazo curto e realista] com a confirma&ccedil;&atilde;o.&rdquo;' }
+    ],
+    evitar: ['Explicar processos longos sem apresentar solu&ccedil;&atilde;o', 'Pedir desculpas excessivas &mdash; ele quer a&ccedil;&atilde;o, n&atilde;o lamenta&ccedil;&otilde;es', 'Ser vago sobre prazos', 'Falar mais do que o necess&aacute;rio']
+  },
+  {
+    id: 'analitico',
+    nome: 'Anal&iacute;tico',
+    icone: '&#9670;',
+    cor: '#2980B9',
+    corClaro: '#EBF5FB',
+    palavras: 'Preciso &bull; Detalhista &bull; Cuidadoso &bull; Exigente com informa&ccedil;&otilde;es',
+    descricao: 'O cliente Anal&iacute;tico pesquisa tudo antes de ligar. Ele j&aacute; leu o contrato, j&aacute; fez as contas e j&aacute; tem d&uacute;vidas espec&iacute;ficas. Ele n&atilde;o quer opini&atilde;o &mdash; quer precis&atilde;o e fundamento. Respostas vagas o deixam ainda mais desconfiante.',
+    como: 'Seja preciso e fundamentado. Nunca invente informa&ccedil;&atilde;o. Se n&atilde;o sabe, diga que vai confirmar e retorne. Use n&uacute;meros, datas e cl&aacute;usulas quando poss&iacute;vel. Ele aprecia quando voc&ecirc; reconhece a complexidade da situa&ccedil;&atilde;o.',
+    scripts: [
+      { ctx: 'Para d&uacute;vidas t&eacute;cnicas', fala: '&ldquo;[Nome], boa pergunta. Vou te explicar com precis&atilde;o: [informa&ccedil;&atilde;o detalhada]. Caso queira, posso te enviar a cl&aacute;usula espec&iacute;fica do contrato para referencia.&rdquo;' },
+      { ctx: 'Quando n&atilde;o tem a informa&ccedil;&atilde;o na hora', fala: '&ldquo;[Nome], quero te dar uma informa&ccedil;&atilde;o precisa. Vou verificar com a &aacute;rea respons&aacute;vel e retorno ainda hoje com a confirma&ccedil;&atilde;o exata.&rdquo;' }
+    ],
+    evitar: ['Responder sem ter certeza', 'Usar express&otilde;es vagas como &ldquo;acho que&rdquo; ou &ldquo;mais ou menos&rdquo;', 'Demonstrar impaciencia com perguntas detalhadas', 'Prometer algo que n&atilde;o pode confirmar']
+  },
+  {
+    id: 'amigavel',
+    nome: 'Amig&aacute;vel',
+    icone: '&#9829;',
+    cor: '#27AE60',
+    corClaro: '#EAFAF1',
+    palavras: 'Receptivo &bull; Colaborativo &bull; Gosta de conversa &bull; Evita conflito',
+    descricao: 'O cliente Amig&aacute;vel &eacute; f&aacute;cil de conversar, mas pode demorar para tomar decis&otilde;es porque &eacute; cauteloso. Ele gosta de se sentir acolhido e n&atilde;o gosta de press&atilde;o. Quando insatisfeito, raramente reclama diretamente &mdash; vai embora sem avisar.',
+    como: 'Crie calor humano genuino. Chame pelo nome, pergunte como est&aacute; sendo a experi&ecirc;ncia. Seja paciente com o ritmo dele. N&atilde;o pressione. Quando precisar de uma decis&atilde;o, ajude a organizar as op&ccedil;&otilde;es de forma clara e sem pressa.',
+    scripts: [
+      { ctx: 'Abertura acolhedora', fala: '&ldquo;Ol&aacute;, [nome]! Que bom falar com voc&ecirc;. Como est&aacute; sendo sua experi&ecirc;ncia com a Canopus at&eacute; agora? Fico feliz em te ajudar hoje.&rdquo;' },
+      { ctx: 'Para facilitar uma decis&atilde;o', fala: '&ldquo;[Nome], vou organizar as op&ccedil;&otilde;es aqui para facilitar. Voc&ecirc; pode pensar com calma &mdash; estou &agrave; disposi&ccedil;&atilde;o sem pressa.&rdquo;' }
+    ],
+    evitar: ['Ir direto ao assunto sem cumprimentar com calor', 'Press&atilde;o para decis&atilde;o r&aacute;pida', 'Tom formal demais ou frio', 'Ignorar o lado emocional da conversa']
+  },
+  {
+    id: 'expressivo',
+    nome: 'Expressivo',
+    icone: '&#9733;',
+    cor: '#8E44AD',
+    corClaro: '#F5EEF8',
+    palavras: 'Entusiasmado &bull; Comunicativo &bull; Criativo &bull; Quer ser reconhecido',
+    descricao: 'O cliente Expressivo &eacute; comunicativo, animado e gosta de compartilhar sua hist&oacute;ria. Ele pode parecer que est&aacute; "enrolando", mas na verdade est&aacute; construindo confian&ccedil;a com voc&ecirc;. Ele responde muito bem ao entusiasmo e ao reconhecimento.',
+    como: 'Corresponda ao entusiasmo dele. Demonstre interesse genuino na hist&oacute;ria que ele conta. Valorize a escolha que ele fez. Use linguagem positiva e animada. N&atilde;o interrompa antes de ele terminar &mdash; para ele, a conversa &eacute; parte da experi&ecirc;ncia.',
+    scripts: [
+      { ctx: 'Quando ele conta a hist&oacute;ria do apartamento', fala: '&ldquo;Que conquista, [nome]! Imagina o momento de pegar as chaves. Agora me conta o que voc&ecirc; precisa e eu cuido de tudo para que essa jornada seja ainda melhor.&rdquo;' },
+      { ctx: 'Para conduzi-lo ao assunto', fala: '&ldquo;Adorei saber disso, [nome]! E falando em [assunto], posso te ajudar com [solu&ccedil;&atilde;o] agora mesmo.&rdquo;' }
+    ],
+    evitar: ['Interromper enquanto ele fala', 'Tom seco ou muito formal', 'Ignorar o que ele compartilhou', 'Pressa excessiva que corte o entusiasmo dele']
+  }
+];
+
+var CSS = '<style>'
++ '.m3{font-family:Inter,sans-serif;padding:.5rem 0;overflow-x:hidden}'
++ '.m3-badge{display:inline-flex;align-items:center;gap:6px;background:#f0f4f4;border:1px solid #e2e8f0;border-radius:10px;padding:4px 12px;font-size:12px;color:#5a6b7c;margin-bottom:1rem}'
++ '.m3-titulo{font-size:20px;font-weight:700;color:#003C50;margin-bottom:.5rem;line-height:1.3}'
++ '.m3-intro{font-size:14px;color:#5a6b7c;line-height:1.8;margin-bottom:1.25rem}'
++ '.m3-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem}'
++ '.m3-tab{padding:6px 14px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;font-size:12px;font-weight:600;color:#5a6b7c;cursor:pointer;transition:all .2s;font-family:Inter,sans-serif}'
++ '.m3-tab.ativo{color:#fff;border-color:currentColor}'
++ '.m3-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:1rem;animation:m3fade .35s ease}'
++ '@keyframes m3fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}'
++ '.m3-topo{padding:16px 20px;display:flex;align-items:center;gap:14px}'
++ '.m3-icone{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}'
++ '.m3-info h3{font-size:16px;font-weight:700;color:#fff;margin-bottom:2px}'
++ '.m3-info p{font-size:11px;color:rgba(255,255,255,0.65)}'
++ '.m3-corpo{padding:18px 20px}'
++ '.m3-desc{font-size:14px;color:#5a6b7c;line-height:1.8;margin-bottom:14px}'
++ '.m3-desc em{font-style:normal;font-weight:600;color:#1a2b3c}'
++ '.m3-stit{font-size:11px;color:#78A0A0;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}'
++ '.m3-como{background:#f0f4f4;border-radius:10px;padding:12px 15px;margin-bottom:14px;font-size:13px;color:#1a2b3c;line-height:1.7}'
++ '.m3-script{border-radius:10px;padding:11px 14px;margin-bottom:7px}'
++ '.m3-sctx{font-size:10px;font-weight:700;text-transform:uppercase;margin-bottom:4px}'
++ '.m3-sfala{font-size:13px;line-height:1.6;font-style:italic}'
++ '.m3-evitar{background:#f0f4f4;border-radius:10px;padding:13px 15px;margin-top:12px}'
++ '.m3-evit-item{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#5a6b7c;padding:2px 0;line-height:1.6}'
++ '.m3-evit-x{color:#dc2626;font-weight:700;flex-shrink:0}'
++ '.m3-caso{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:18px;margin-bottom:1rem}'
++ '.m3-opts{display:flex;flex-direction:column;gap:7px;margin-bottom:6px}'
++ '.m3-opt{display:flex;align-items:flex-start;gap:9px;padding:10px 13px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;font-size:13px;color:#1a2b3c;line-height:1.4;text-align:left;width:100%;transition:all .2s;font-family:Inter,sans-serif}'
++ '.m3-opt:hover:not(:disabled){border-color:#003349;background:#f0f4f4}'
++ '.m3-opt.certa{border-color:#1DBCB0;background:#e6f7f6;color:#085041}'
++ '.m3-opt.errada{border-color:#fca5a5;background:#fef2f2;color:#991b1b}'
++ '.m3-ol{width:22px;height:22px;border-radius:50%;background:#f0f4f4;font-size:11px;font-weight:700;color:#5a6b7c;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}'
++ '.m3-opt.certa .m3-ol{background:#1DBCB0;color:#fff}'
++ '.m3-opt.errada .m3-ol{background:#fca5a5;color:#fff}'
++ '.m3-fb{font-size:13px;padding:11px 14px;border-radius:10px;margin-top:9px;line-height:1.6;display:none}'
++ '.m3-fb.show{display:block}'
++ '.m3-fb.ok{background:#e6f7f6;color:#085041;border:1px solid #1DBCB0}'
++ '.m3-fb.err{background:#fef2f2;color:#991b1b;border:1px solid #fca5a5}'
++ '.m3-enc{text-align:center;padding:2.5rem 1.5rem;background:var(--azul-escuro,#003349);border-radius:16px;position:relative;overflow:hidden}'
++ '.m3-enc-ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);pointer-events:none}'
++ '.m3-enc-logo{opacity:0;transform:scale(0.3);transition:opacity .7s cubic-bezier(.34,1.56,.64,1),transform .7s cubic-bezier(.34,1.56,.64,1);display:inline-block;margin-bottom:1rem}'
++ '.m3-enc-logo.vis{opacity:1;transform:scale(1)}'
++ '.m3-enc-t1{font-size:20px;font-weight:600;color:#fff;margin-bottom:.4rem;opacity:0;transform:translateY(10px);transition:all .5s 1.1s}'
++ '.m3-enc-t1.vis{opacity:1;transform:translateY(0)}'
++ '.m3-enc-t2{font-size:13px;color:rgba(255,255,255,0.55);line-height:1.7;margin-bottom:1.2rem;opacity:0;transition:all .5s 1.3s}'
++ '.m3-enc-t2.vis{opacity:1}'
++ '.m3-enc-pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:1.2rem;opacity:0;transition:all .5s 1.5s}'
++ '.m3-enc-pills.vis{opacity:1}'
++ '.m3-enc-pill{background:rgba(44,213,196,0.12);border:0.5px solid rgba(44,213,196,0.3);border-radius:20px;padding:4px 12px;font-size:11px;color:#2CD5C4}'
++ '.m3-enc-btn{opacity:0;transition:all .5s 1.8s}'
++ '.m3-enc-btn.vis{opacity:1}'
++ '.m3-nav{display:flex;justify-content:space-between;align-items:center;margin-top:1rem}'
++ '.m3-navlbl{font-size:12px;color:#78A0A0}'
++ '.m3-btn{display:flex;align-items:center;gap:5px;padding:8px 16px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;font-size:13px;color:#1a2b3c;cursor:pointer;transition:all .2s;font-family:Inter,sans-serif}'
++ '.m3-btn.p{background:#003349;color:#fff;border-color:#003349}'
++ '.m3-btn.p:hover{background:#004d6b}'
++ '.m3-btn:disabled{opacity:.35;cursor:not-allowed}'
++ '@media(max-width:600px){.m3-titulo{font-size:17px}.m3-corpo{padding:12px 14px}.m3-topo{padding:12px 14px}}'
++ '</style>';
+
+var TELAS = ['conteudo','caso','enc'];
+
+function html_conteudo() {
+    return '<div id="m3-conteudo">'
+        + '<div class="m3-badge">Relacionamento &middot; M&oacute;dulo 3</div>'
+        + '<div class="m3-titulo">Conhecendo os perfis do nosso cliente</div>'
+        + '<div class="m3-intro">Cada cliente &eacute; &uacute;nico &mdash; mas alguns padr&otilde;es de comportamento se repetem. Reconhecer o perfil do cliente na abertura do atendimento muda completamente a abordagem. Clique em cada perfil para entender como atender da melhor forma.</div>'
+        + '<div class="m3-tabs" id="m3-tabs">'
+        + PERFIS.map(function(p,i){ return '<button class="m3-tab'+(i===0?' ativo':'')+'" onclick="m3Ver('+i+')" id="m3-tab-'+i+'" style="'+(i===0?'background:'+p.cor+';color:#fff;border-color:'+p.cor:'')+'">'+p.icone+' '+p.nome+'</button>'; }).join('')
+        + '</div>'
+        + '<div id="m3-perfil-wrap"></div>'
+        + '<div class="m3-nav">'
+        + '<button class="m3-btn" id="m3-ant" onclick="m3Nav(-1)" disabled>&larr; Anterior</button>'
+        + '<span class="m3-navlbl" id="m3-lbl">Perfil 1 de 4</span>'
+        + '<button class="m3-btn p" id="m3-prox">Pr&oacute;ximo &rarr;</button>'
+        + '</div></div>';
+}
+
+function html_caso() {
+    return '<div id="m3-caso" style="display:none">'
+        + '<div class="m3-badge">Estudo de caso</div>'
+        + '<div class="m3-titulo">Agora &eacute; com voc&ecirc;</div>'
+        + '<div class="m3-intro">Voc&ecirc; aprendeu os 4 perfis. Leia a situa&ccedil;&atilde;o abaixo e identifique qual perfil descreve esse cliente &mdash; e como voc&ecirc; deve atend&ecirc;-lo.</div>'
+        + '<div class="m3-caso">'
+        + '<div style="font-size:11px;font-weight:700;color:#003349;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Situa&ccedil;&atilde;o real</div>'
+        + '<div style="font-size:14px;color:#5a6b7c;line-height:1.7;margin-bottom:14px;font-style:italic;padding:11px 14px;background:#f0f4f4;border-radius:10px">Ricardo liga para o setor de Relacionamento. Antes de expor a d&uacute;vida, ele j&aacute; menciona que leu o contrato inteiro, anotou os prazos e quer confirmar se o que entendeu est&aacute; correto. Ele pergunta sobre um &iacute;ndice de corre&ccedil;&atilde;o espec&iacute;fico e quer saber exatamente como &eacute; calculado.</div>'
+        + '<div style="font-size:14px;font-weight:600;color:#1a2b3c;margin-bottom:12px;line-height:1.5">Qual &eacute; o perfil do Ricardo e qual abordagem usar?</div>'
+        + '<div class="m3-opts">'
+        + '<button class="m3-opt" onclick="m3Resp(0)"><span class="m3-ol">A</span>Controlador &mdash; ele quer uma solu&ccedil;&atilde;o r&aacute;pida, sem explica&ccedil;&otilde;es longas.</button>'
+        + '<button class="m3-opt" onclick="m3Resp(1)"><span class="m3-ol">B</span>Anal&iacute;tico &mdash; ele pesquisa tudo e precisa de informa&ccedil;&otilde;es precisas e fundamentadas.</button>'
+        + '<button class="m3-opt" onclick="m3Resp(2)"><span class="m3-ol">C</span>Amig&aacute;vel &mdash; ele gosta de conversa e precisa de calor humano antes da informa&ccedil;&atilde;o.</button>'
+        + '<button class="m3-opt" onclick="m3Resp(3)"><span class="m3-ol">D</span>Expressivo &mdash; ele est&aacute; animado e precisa de reconhecimento antes de qualquer coisa.</button>'
+        + '</div>'
+        + '<div class="m3-fb" id="m3-fb"></div>'
+        + '</div>'
+        + '<div class="m3-nav">'
+        + '<button class="m3-btn" onclick="m3Tela(\'conteudo\')">&larr; Voltar</button>'
+        + '<button class="m3-btn p" id="m3-ir-enc" onclick="m3Tela(\'enc\')" disabled>Encerramento &rarr;</button>'
+        + '</div></div>';
+}
+
+function html_enc() {
+    return '<div id="m3-enc" style="display:none">'
+        + '<div class="m3-enc">'
+        + '<svg class="m3-enc-ring" width="130" height="130" viewBox="0 0 130 130"><circle id="m3-ring" cx="65" cy="65" r="48" fill="none" stroke="#2CD5C4" stroke-width="1" opacity=".3" style="stroke-dasharray:302;stroke-dashoffset:302;transition:stroke-dashoffset 1s .8s ease-out"/></svg>'
+        + '<div class="m3-enc-logo" id="m3-enc-logo" style="position:relative;z-index:2">' + LOGO + '</div>'
+        + '<div class="m3-enc-t1" id="m3-enc-t1" style="position:relative;z-index:2">Voc&ecirc; concluiu o m&oacute;dulo!</div>'
+        + '<div class="m3-enc-t2" id="m3-enc-t2" style="position:relative;z-index:2">Agora voc&ecirc; conhece os 4 perfis e sabe como adaptar seu atendimento para cada cliente.</div>'
+        + '<div class="m3-enc-pills" id="m3-enc-pills" style="position:relative;z-index:2">'
+        + '<span class="m3-enc-pill">Controlador</span>'
+        + '<span class="m3-enc-pill">Anal&iacute;tico</span>'
+        + '<span class="m3-enc-pill">Amig&aacute;vel</span>'
+        + '<span class="m3-enc-pill">Expressivo</span>'
+        + '</div>'
+        + '<div class="m3-enc-btn" id="m3-enc-btn" style="position:relative;z-index:2">'
+        + '<button class="m3-btn p" onclick="history.back()" style="border-radius:10px;padding:10px 28px;font-size:14px">Avan&ccedil;ar &rarr;</button>'
+        + '</div>'
+        + '<div id="m3-parts" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none"></div>'
+        + '</div></div>';
+}
+
+container.innerHTML = CSS + '<div class="m3">' + html_conteudo() + html_caso() + html_enc() + '</div>';
+
+window.m3Atual = 0;
+window.m3QDone = false;
+
+window.m3RenderPerfil = function(i) {
+    window.m3Atual = i;
+    var p = PERFIS[i];
+    var sc = p.scripts.map(function(s){
+        return '<div class="m3-script" style="background:'+p.corClaro+';margin-bottom:7px;border-radius:10px;padding:11px 14px">'
+            + '<div class="m3-sctx" style="color:'+p.cor+'">' + s.ctx + '</div>'
+            + '<div class="m3-sfala" style="color:#1a2b3c;font-size:13px;line-height:1.6">' + s.fala + '</div>'
+            + '</div>';
+    }).join('');
+    var ev = p.evitar.map(function(e){
+        return '<div class="m3-evit-item"><span class="m3-evit-x">&#10007;</span><span>' + e + '</span></div>';
+    }).join('');
+    document.getElementById('m3-perfil-wrap').innerHTML =
+        '<div class="m3-card">'
+        + '<div class="m3-topo" style="background:'+p.cor+'">'
+        + '<div class="m3-icone" style="background:rgba(255,255,255,0.2);font-size:22px">' + p.icone + '</div>'
+        + '<div class="m3-info"><h3>' + p.nome + '</h3><p>' + p.palavras + '</p></div>'
+        + '</div>'
+        + '<div class="m3-corpo">'
+        + '<div class="m3-desc">' + p.descricao + '</div>'
+        + '<div class="m3-stit">Como atender bem</div>'
+        + '<div class="m3-como">' + p.como + '</div>'
+        + '<div class="m3-stit">Scripts prontos para usar</div>'
+        + sc
+        + '<div class="m3-evitar"><div class="m3-stit" style="margin-bottom:7px">O que nunca fazer</div>' + ev + '</div>'
+        + '</div></div>';
+    document.querySelectorAll('.m3-tab').forEach(function(b, idx){
+        b.classList.remove('ativo');
+        b.style.background = '';
+        b.style.color = '';
+        b.style.borderColor = '';
+        if(idx === i) {
+            b.classList.add('ativo');
+            b.style.background = PERFIS[idx].cor;
+            b.style.color = '#fff';
+            b.style.borderColor = PERFIS[idx].cor;
+        }
+    });
+    document.getElementById('m3-lbl').textContent = 'Perfil ' + (i+1) + ' de 4';
+    document.getElementById('m3-ant').disabled = i === 0;
+    var bp = document.getElementById('m3-prox');
+    if(i === 3) {
+        bp.innerHTML = 'Estudo de caso &rarr;';
+        bp.onclick = function(){ m3Tela('caso'); };
+    } else {
+        bp.innerHTML = 'Pr&oacute;ximo &rarr;';
+        bp.onclick = function(){ m3Nav(1); };
+    }
+};
+
+window.m3Ver = function(i) { window.m3RenderPerfil(i); };
+window.m3Nav = function(d) { var n = window.m3Atual + d; if(n >= 0 && n <= 3) window.m3RenderPerfil(n); };
+
+window.m3Tela = function(nome) {
+    ['conteudo','caso','enc'].forEach(function(t){
+        var el = document.getElementById('m3-' + t);
+        if(el) el.style.display = 'none';
+    });
+    var el = document.getElementById('m3-' + nome);
+    if(el) el.style.display = 'block';
+    if(nome === 'enc') m3Animar();
+};
+
+var M3_RESPS = [
+    {c:false, f:'N&atilde;o &eacute; o perfil Controlador. Ele &eacute; objetivo e direto, mas n&atilde;o costuma ler o contrato inteiro antes de ligar. O Controlador quer a solu&ccedil;&atilde;o r&aacute;pida, n&atilde;o o detalhamento.'},
+    {c:true,  f:'Correto! O Ricardo &eacute; Anal&iacute;tico. Ele j&aacute; pesquisou, j&aacute; leu o contrato e quer confirma&ccedil;&atilde;o precisa. A abordagem certa &eacute; ser t&eacute;cnico, fundamentado e nunca inventar informa&ccedil;&atilde;o. Se n&atilde;o souber na hora, diga que vai confirmar e retorne com precis&atilde;o.'},
+    {c:false, f:'O Amig&aacute;vel &eacute; receptivo e evita conflito, mas n&atilde;o &eacute; o que chega com o contrato lido e perguntas t&eacute;cnicas espec&iacute;ficas. Esse comportamento &eacute; t&iacute;pico do perfil Anal&iacute;tico.'},
+    {c:false, f:'O Expressivo &eacute; animado e comunicativo, mas raramente chega com o contrato lido e d&uacute;vidas sobre &iacute;ndices. Esse n&iacute;vel de prepara&ccedil;&atilde;o &eacute; marca do perfil Anal&iacute;tico.'}
+];
+
+window.m3Resp = function(i) {
+    if(window.m3QDone) return;
+    window.m3QDone = true;
+    var r = M3_RESPS[i];
+    document.querySelectorAll('.m3-opt').forEach(function(el, idx){
+        el.disabled = true;
+        if(M3_RESPS[idx].c) el.classList.add('certa');
+        else if(idx === i && !r.c) el.classList.add('errada');
+    });
+    var fb = document.getElementById('m3-fb');
+    fb.className = 'm3-fb show ' + (r.c ? 'ok' : 'err');
+    fb.innerHTML = (r.c ? '&#10003; ' : '&#10007; ') + r.f;
+    if(r.c) document.getElementById('m3-ir-enc').disabled = false;
+};
+
+function m3Animar() {
+    var pc = document.getElementById('m3-parts');
+    if(pc) {
+        pc.innerHTML = '';
+        var cols = ['#2CD5C4','#9FE1CB','rgba(255,255,255,0.8)'];
+        for(var i=0;i<22;i++){
+            var p = document.createElement('div');
+            var sz = Math.random()*4+2;
+            var ang = Math.random()*Math.PI*2;
+            var d = 60+Math.random()*80;
+            p.style.cssText = 'position:absolute;border-radius:50%;width:'+sz+'px;height:'+sz+'px;background:'+cols[Math.floor(Math.random()*cols.length)]+';top:calc(50% - '+sz/2+'px);left:calc(50% - '+sz/2+'px);animation:cnPart 2s ease-out forwards;animation-delay:'+Math.random()*.3+'s;--dx:'+Math.cos(ang)*d+'px;--dy:'+Math.sin(ang)*d+'px';
+            pc.appendChild(p);
+        }
+    }
+    var lw = document.getElementById('m3-enc-logo');
+    if(lw) setTimeout(function(){ lw.classList.add('vis'); }, 150);
+    var rc = document.getElementById('m3-ring');
+    if(rc) setTimeout(function(){ rc.style.strokeDashoffset = '0'; }, 800);
+    var t1 = document.getElementById('m3-enc-t1');
+    if(t1) setTimeout(function(){ t1.classList.add('vis'); }, 1100);
+    var t2 = document.getElementById('m3-enc-t2');
+    if(t2) setTimeout(function(){ t2.classList.add('vis'); }, 1300);
+    var pl = document.getElementById('m3-enc-pills');
+    if(pl) setTimeout(function(){ pl.classList.add('vis'); }, 1500);
+    var bt = document.getElementById('m3-enc-btn');
+    if(bt) setTimeout(function(){ bt.classList.add('vis'); }, 1800);
+}
+
+window.m3RenderPerfil(0);
+}
+
+
+// MÓDULO 4 — Escrita Encantadora: Chat, WhatsApp e Mídias Sociais
+// Baseado no material "Cliente Feliz" — módulos 2, 3 e 4
+
+function renderModRelQuatro(container) {
+
+var LOGO = '<svg width="40" height="40" viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="l4T" x1="0" y1="0" x2="1" y2="0.4"><stop offset="0%" stop-color="#2CD5C4"/><stop offset="100%" stop-color="#00B8D4"/></linearGradient><linearGradient id="l4M" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#18C8C0"/><stop offset="100%" stop-color="#0090A8"/></linearGradient><linearGradient id="l4B" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#10BDB8"/><stop offset="100%" stop-color="#007A90"/></linearGradient></defs><polygon points="22,36 78,36 92,18 36,18" fill="url(#l4T)"/><rect x="22" y="36" width="18" height="56" fill="url(#l4M)"/><rect x="40" y="36" width="38" height="38" fill="url(#l4M)"/><rect x="52" y="36" width="26" height="26" fill="#003349"/><circle cx="67" cy="44" r="10" fill="#1ABED0"/><circle cx="67" cy="44" r="5.5" fill="#003349" opacity="0.75"/><polygon points="40,74 72,74 86,92 40,92" fill="url(#l4B)"/></svg>';
+
+var PASSOS = [
+  {
+    num: 1,
+    titulo: 'A escrita que encanta',
+    sub: '7 pilares para todo atendimento escrito',
+    intro: 'Toda mensagem que voc&ecirc; envia &eacute; a voz da Canopus. N&atilde;o existe &ldquo;s&oacute; um recado r&aacute;pido&rdquo; &mdash; cada palavra constr&oacute;i ou destr&oacute;i a percep&ccedil;&atilde;o que o cliente tem da empresa. Esses 7 pilares valem para e-mail, chat, WhatsApp e mídias sociais.',
+    pilares: [
+      { n:'1', titulo:'Ter objetivo', desc:'Antes de escrever, pergunte: o que o cliente precisa sair sabendo? A resposta define cada palavra que voc&ecirc; usa.' },
+      { n:'2', titulo:'Ter clareza', desc:'Frases curtas. Uma ideia por vez. O cliente n&atilde;o deve precisar ler duas vezes para entender.' },
+      { n:'3', titulo:'Ter empatia', desc:'O cliente pode estar frustrado, ansioso ou aliviado. A palavra certa para cada emo&ccedil;&atilde;o muda tudo.' },
+      { n:'4', titulo:'Ter criatividade', desc:'Evite respostas-padr&atilde;o que n&atilde;o dizem nada. Personalize. O cliente percebe quando &eacute; um copiar-e-colar.' },
+      { n:'5', titulo:'Ter personalidade', desc:'Escreva como a Canopus fala: amig&aacute;vel, profissional, pr&oacute;ximo. Sem gírias, sem frieza corporativa.' },
+      { n:'6', titulo:'Usar linguagem n&atilde;o verbal', desc:'Emoticons com crit&eacute;rio quando o canal permitir. Eles humanizam &mdash; mas s&oacute; quando fazem sentido no contexto.' },
+      { n:'7', titulo:'Ter aten&ccedil;&atilde;o', desc:'Releia antes de enviar. Erro de portugu&ecirc;s, nome errado ou informa&ccedil;&atilde;o imprecisa apagam qualquer boa impress&atilde;o.' }
+    ]
+  },
+  {
+    num: 2,
+    titulo: 'Atendimento pelo Chat',
+    sub: 'Como conduzir a conversa com efici&ecirc;ncia e empatia',
+    intro: 'O chat tem vantagens &uacute;nicas: discrição, velocidade e a possibilidade de atender m&uacute;ltiplos clientes ao mesmo tempo. Mas sem tom de voz e sem linguagem corporal, mal-entendidos acontecem f&aacute;cil. A estrutura certa evita isso.',
+    estrutura: [
+      { titulo: 'Reconhecimento e saudação', desc: 'Inicie chamando o cliente pelo nome. Uma saudação amig&aacute;vel define o tom de toda a conversa &mdash; e o cliente percebe de imediato se est&aacute; sendo bem recebido.' },
+      { titulo: 'Controle da conversa', desc: 'Voc&ecirc; &eacute; quem conduz. Como um bom entrevistador, direcione a interação para que fique produtiva e focada. N&atilde;o deixe a conversa dispersar.' },
+      { titulo: 'Empatia ativa', desc: 'Demonstre que est&aacute; realmente ouvindo. &ldquo;Entendo, [nome], isso &eacute; frustrante&rdquo; vale mais do que qualquer tecnicidade.' },
+      { titulo: 'Organização e engajamento', desc: 'Informe os pr&oacute;ximos passos. Use o nome do cliente nas mensagens. Fa&ccedil;a perguntas relevantes que mostrem aten&ccedil;&atilde;o.' },
+      { titulo: 'Linguagem adaptativa', desc: 'O chat permite linguagem mais leve, mas o equil&iacute;brio &eacute; fundamental. Amig&aacute;vel sim. Informal demais, não.' }
+    ],
+    scripts: [
+      { ctx: 'Abertura padrão no chat', fala: '&ldquo;Ol&aacute;, [nome]! Bom dia/tarde. Fico feliz em te ajudar hoje. Me conta o que voc&ecirc; precisa.&rdquo;' },
+      { ctx: 'Quando precisar de tempo para verificar', fala: '&ldquo;[Nome], vou verificar essa informação para te dar uma resposta precisa. Pode aguardar um minutinho?&rdquo;' }
+    ]
+  },
+  {
+    num: 3,
+    titulo: 'Atendimento pelo WhatsApp',
+    sub: '99% dos celulares no Brasil &mdash; use bem essa ferramenta',
+    intro: 'O WhatsApp &eacute; o canal mais &iacute;ntimo que existe. Quando o cliente te manda mensagem por l&aacute;, ele est&aacute; usando o mesmo aplicativo que usa para falar com a fam&iacute;lia. Isso &eacute; um privil&eacute;gio &mdash; e uma responsabilidade enorme.',
+    regras: [
+      { icon: '&#9201;', titulo: 'Responda r&aacute;pido, mas com qualidade', desc: 'Velocidade importa. Mas uma resposta r&aacute;pida e errada &eacute; pior do que uma resposta certa que demorou dois minutos.' },
+      { icon: '&#128251;', titulo: 'Seja claro e direto', desc: 'Evite mensagens longas num &uacute;nico bloco. Quebre em parágrafos curtos. O cliente l&ecirc; no celular, geralmente com pressa.' },
+      { icon: '&#128274;', titulo: 'Proteja a privacidade', desc: 'N&atilde;o compartilhe dados do cliente com terceiros. N&atilde;o exponha informa&ccedil;&otilde;es contratuais sem necessidade.' },
+      { icon: '&#128337;', titulo: 'Respeite o hor&aacute;rio', desc: 'N&atilde;o envie mensagens fora do hor&aacute;rio comercial, exceto quando o pr&oacute;prio cliente iniciou o contato.' },
+      { icon: '&#128172;', titulo: 'Pe&ccedil;a feedback', desc: 'Ao final de um atendimento resolvido, pergunte: &ldquo;Consegui te ajudar com tudo que precisava?&rdquo; &Eacute; simples e faz diferen&ccedil;a.' }
+    ],
+    scripts: [
+      { ctx: 'Confirma&ccedil;&atilde;o de protocolo', fala: '&ldquo;[Nome], sua solicita&ccedil;&atilde;o foi registrada com o protocolo [n&uacute;mero]. Retorno at&eacute; [prazo] com as atualiza&ccedil;&otilde;es. Qualquer d&uacute;vida, &eacute; s&oacute; falar.&rdquo;' },
+      { ctx: 'Encerramento caloroso', fala: '&ldquo;Fico feliz em ter ajudado, [nome]! Nosso time continua &agrave; disposi&ccedil;&atilde;o. Tenha um &oacute;timo dia!&rdquo;' }
+    ]
+  },
+  {
+    num: 4,
+    titulo: 'Mídias sociais e casos dif&iacute;ceis',
+    sub: 'Reputação &eacute; constru&iacute;da ou destru&iacute;da em p&uacute;blico',
+    intro: 'Quando um cliente vai para as redes sociais ou o Reclame Aqui, a empresa j&aacute; falhou em alguma etapa anterior. Mas como voc&ecirc; responde ali determina se isso vai virar uma crise ou uma demonstra&ccedil;&atilde;o de car&aacute;ter da Canopus.',
+    alertas: [
+      { titulo: 'Rapidez &eacute; pr&oacute;-ativa', desc: 'Quanto mais r&aacute;pido a Canopus responde a uma exposi&ccedil;&atilde;o p&uacute;blica, menor o &ldquo;barulho&rdquo; gerado. Ign&nbsp;orar piora exponencialmente.' },
+      { titulo: 'Autenticidade acima de tudo', desc: 'Respostas corporativas frias em redes sociais s&atilde;o piores que n&atilde;o responder. Mostre honestidade e humanidade.' },
+      { titulo: 'Empatia dobrada', desc: 'Se o cliente foi para rede social, o esfor&ccedil;o dele foi enorme. Reconheça isso explicitamente na resposta.' },
+      { titulo: 'Estrutura do Reclame Aqui', desc: 'Saudação &rarr; Introdu&ccedil;&atilde;o &rarr; Contextualiza&ccedil;&atilde;o objetiva &rarr; Pr&oacute;ximos passos &rarr; Solicita&ccedil;&atilde;o de avalia&ccedil;&atilde;o &rarr; Canal de contato &rarr; Assinatura.' }
+    ],
+    scripts: [
+      { ctx: 'Resposta p&uacute;blica em rede social', fala: '&ldquo;Ol&aacute;, [nome]! Lamentamos muito por essa experi&ecirc;ncia. Entendemos sua frustra&ccedil;&atilde;o e queremos resolver. Por favor, nos envie uma mensagem privada com seu CPF e contato para que nossa equipe entre em a&ccedil;&atilde;o imediatamente.&rdquo;' },
+      { ctx: 'Resposta no Reclame Aqui', fala: '&ldquo;Ol&aacute;, [nome]. Agradecemos o seu contato e lamentamos pelo transtorno. Identificamos sua solicita&ccedil;&atilde;o e nosso time j&aacute; est&aacute; trabalhando em uma solu&ccedil;&atilde;o. Retornaremos em at&eacute; [prazo]. Voc&ecirc; tamb&eacute;m pode entrar em contato diretamente pelo [canal]. Atenciosamente, Equipe Canopus.&rdquo;' }
+    ]
+  }
+];
+
+var CSS = '<style>'
++ '.m4{font-family:Inter,sans-serif;padding:.5rem 0;overflow-x:hidden}'
++ '.m4-badge{display:inline-flex;align-items:center;gap:6px;background:#f0f4f4;border:1px solid #e2e8f0;border-radius:10px;padding:4px 12px;font-size:12px;color:#5a6b7c;margin-bottom:1rem}'
++ '.m4-titulo{font-size:20px;font-weight:700;color:#003C50;margin-bottom:.5rem;line-height:1.3}'
++ '.m4-intro{font-size:14px;color:#5a6b7c;line-height:1.8;margin-bottom:1.25rem}'
++ '.m4-pbar{height:3px;background:#e2e8f0;border-radius:2px;margin-bottom:1rem;overflow:hidden}'
++ '.m4-pbar-fill{height:3px;background:#003349;border-radius:2px;transition:width .5s}'
++ '.m4-snav-wrap{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.2rem}'
++ '.m4-snav{padding:6px 13px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;font-size:12px;font-weight:600;color:#5a6b7c;cursor:pointer;transition:all .25s;font-family:Inter,sans-serif}'
++ '.m4-snav.ativo{background:#003349;color:#fff;border-color:#003349}'
++ '.m4-snav.feito{background:#e6f7f6;color:#0F6E56;border-color:#1DBCB0}'
++ '.m4-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:1rem;animation:m4fade .35s ease}'
++ '@keyframes m4fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}'
++ '.m4-topo{padding:16px 20px;background:#003349;display:flex;align-items:center;gap:16px}'
++ '.m4-num{font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:3px;text-transform:uppercase;letter-spacing:.07em}'
++ '.m4-ptit{font-size:16px;font-weight:600;color:#fff;margin-bottom:2px}'
++ '.m4-psub{font-size:12px;color:rgba(255,255,255,0.6);line-height:1.4}'
++ '.m4-corpo{padding:18px 20px}'
++ '.m4-texto{font-size:14px;color:#5a6b7c;line-height:1.8;margin-bottom:16px}'
++ '.m4-texto em{font-style:normal;font-weight:600;color:#1a2b3c}'
++ '.m4-stit{font-size:11px;color:#78A0A0;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}'
++ '.m4-item{background:#f0f4f4;border-radius:10px;padding:11px 14px;margin-bottom:7px;display:flex;align-items:flex-start;gap:10px}'
++ '.m4-item-icon{font-size:16px;flex-shrink:0;margin-top:1px}'
++ '.m4-item-titulo{font-size:13px;font-weight:600;color:#1a2b3c;margin-bottom:2px}'
++ '.m4-item-desc{font-size:12px;color:#5a6b7c;line-height:1.6}'
++ '.m4-pilar{background:#e6f7f6;border-radius:10px;padding:10px 13px;margin-bottom:6px;display:flex;align-items:flex-start;gap:10px}'
++ '.m4-pilar-n{width:24px;height:24px;border-radius:6px;background:#003349;color:#2CD5C4;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}'
++ '.m4-pilar-titulo{font-size:13px;font-weight:600;color:#003C50;margin-bottom:2px}'
++ '.m4-pilar-desc{font-size:12px;color:#5a6b7c;line-height:1.5}'
++ '.m4-script{background:#e6f7f6;border-radius:10px;padding:11px 14px;margin-bottom:7px}'
++ '.m4-sctx{font-size:10px;color:#0F6E56;margin-bottom:4px;font-weight:700;text-transform:uppercase}'
++ '.m4-sfala{font-size:13px;color:#085041;line-height:1.6;font-style:italic}'
++ '.m4-caso{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:18px;margin-bottom:1rem}'
++ '.m4-opts{display:flex;flex-direction:column;gap:7px;margin-bottom:6px}'
++ '.m4-opt{display:flex;align-items:flex-start;gap:9px;padding:10px 13px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;font-size:13px;color:#1a2b3c;line-height:1.4;text-align:left;width:100%;transition:all .2s;font-family:Inter,sans-serif}'
++ '.m4-opt:hover:not(:disabled){border-color:#003349;background:#f0f4f4}'
++ '.m4-opt.certa{border-color:#1DBCB0;background:#e6f7f6;color:#085041}'
++ '.m4-opt.errada{border-color:#fca5a5;background:#fef2f2;color:#991b1b}'
++ '.m4-ol{width:22px;height:22px;border-radius:50%;background:#f0f4f4;font-size:11px;font-weight:700;color:#5a6b7c;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}'
++ '.m4-opt.certa .m4-ol{background:#1DBCB0;color:#fff}'
++ '.m4-opt.errada .m4-ol{background:#fca5a5;color:#fff}'
++ '.m4-fb{font-size:13px;padding:11px 14px;border-radius:10px;margin-top:9px;line-height:1.6;display:none}'
++ '.m4-fb.show{display:block}'
++ '.m4-fb.ok{background:#e6f7f6;color:#085041;border:1px solid #1DBCB0}'
++ '.m4-fb.err{background:#fef2f2;color:#991b1b;border:1px solid #fca5a5}'
++ '.m4-enc{text-align:center;padding:2.5rem 1.5rem;background:var(--azul-escuro,#003349);border-radius:16px;position:relative;overflow:hidden}'
++ '.m4-enc-logo{opacity:0;transform:scale(0.3);transition:opacity .7s cubic-bezier(.34,1.56,.64,1),transform .7s cubic-bezier(.34,1.56,.64,1);display:inline-block;margin-bottom:1rem}'
++ '.m4-enc-logo.vis{opacity:1;transform:scale(1)}'
++ '.m4-enc-t1{font-size:20px;font-weight:600;color:#fff;margin-bottom:.4rem;opacity:0;transform:translateY(10px);transition:all .5s 1.1s}'
++ '.m4-enc-t1.vis{opacity:1;transform:translateY(0)}'
++ '.m4-enc-t2{font-size:13px;color:rgba(255,255,255,0.55);line-height:1.7;margin-bottom:1.2rem;opacity:0;transition:all .5s 1.3s}'
++ '.m4-enc-t2.vis{opacity:1}'
++ '.m4-enc-pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:1.2rem;opacity:0;transition:all .5s 1.5s}'
++ '.m4-enc-pills.vis{opacity:1}'
++ '.m4-enc-pill{background:rgba(44,213,196,0.12);border:0.5px solid rgba(44,213,196,0.3);border-radius:20px;padding:4px 12px;font-size:11px;color:#2CD5C4}'
++ '.m4-enc-btn{opacity:0;transition:all .5s 1.8s}'
++ '.m4-enc-btn.vis{opacity:1}'
++ '.m4-nav{display:flex;justify-content:space-between;align-items:center;margin-top:1rem}'
++ '.m4-navlbl{font-size:12px;color:#78A0A0}'
++ '.m4-btn{display:flex;align-items:center;gap:5px;padding:8px 16px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;font-size:13px;color:#1a2b3c;cursor:pointer;transition:all .2s;font-family:Inter,sans-serif}'
++ '.m4-btn.p{background:#003349;color:#fff;border-color:#003349}'
++ '.m4-btn.p:hover{background:#004d6b}'
++ '.m4-btn:disabled{opacity:.35;cursor:not-allowed}'
++ '@media(max-width:600px){.m4-titulo{font-size:17px}.m4-corpo{padding:12px 14px}.m4-topo{padding:12px 14px}}'
++ '</style>';
+
+function m4TijoloCor(n){
+    var F='#C8502A',S='#9B3A1C',T='#E8724A';
+    function tj(x,y,w,h){return '<polygon points="'+x+','+y+' '+(x+w)+','+y+' '+(x+w+5)+','+(y-4)+' '+(x+5)+','+(y-4)+'" fill="'+T+'"/><polygon points="'+(x+w)+','+y+' '+(x+w)+','+(y+h)+' '+(x+w+5)+','+(y+h-4)+' '+(x+w+5)+','+(y-4)+'" fill="'+S+'"/><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+F+'">';}
+    var W=52,H=14,g=3,hw=24,svg='',rows=[];
+    for(var i=0;i<n;i++){var y=(H+g)*i;rows.push(i%2===0?{full:true,y:y}:{full:false,y:y});}
+    rows.forEach(function(r){svg+=r.full?tj(0,r.y,W,H):(tj(0,r.y,hw,H)+tj(hw+g,r.y,hw-g,H));});
+    return '<svg width="62" height="'+(H+g)*n+8+'" viewBox="-4 -6 66 '+(H+g)*n+8+'" xmlns="http://www.w3.org/2000/svg">'+svg+'</svg>';
+}
+
+function renderPasso4(i) {
+    window.m4Atual = i;
+    var p = PASSOS[i];
+    var corpo = '';
+    if(i === 0) {
+        corpo = p.pilares.map(function(pl){
+            return '<div class="m4-pilar"><div class="m4-pilar-n">'+pl.n+'</div><div><div class="m4-pilar-titulo">'+pl.titulo+'</div><div class="m4-pilar-desc">'+pl.desc+'</div></div></div>';
+        }).join('');
+        corpo = '<div class="m4-stit">Os 7 pilares</div>' + corpo;
+    } else if(i === 1) {
+        corpo = '<div class="m4-stit">Estrutura de sucesso</div>';
+        corpo += p.estrutura.map(function(e){
+            return '<div class="m4-item"><div class="m4-item-icon">&#10004;</div><div><div class="m4-item-titulo">'+e.titulo+'</div><div class="m4-item-desc">'+e.desc+'</div></div></div>';
+        }).join('');
+        corpo += '<div class="m4-stit" style="margin-top:14px">Scripts prontos</div>';
+        corpo += p.scripts.map(function(s){return '<div class="m4-script"><div class="m4-sctx">'+s.ctx+'</div><div class="m4-sfala">'+s.fala+'</div></div>';}).join('');
+    } else if(i === 2) {
+        corpo = '<div class="m4-stit">5 regras de ouro no WhatsApp</div>';
+        corpo += p.regras.map(function(r){
+            return '<div class="m4-item"><div class="m4-item-icon">'+r.icon+'</div><div><div class="m4-item-titulo">'+r.titulo+'</div><div class="m4-item-desc">'+r.desc+'</div></div></div>';
+        }).join('');
+        corpo += '<div class="m4-stit" style="margin-top:14px">Scripts prontos</div>';
+        corpo += p.scripts.map(function(s){return '<div class="m4-script"><div class="m4-sctx">'+s.ctx+'</div><div class="m4-sfala">'+s.fala+'</div></div>';}).join('');
+    } else {
+        corpo = '<div class="m4-stit">Pontos de aten&ccedil;&atilde;o</div>';
+        corpo += p.alertas.map(function(a){
+            return '<div class="m4-item"><div class="m4-item-icon">&#9888;</div><div><div class="m4-item-titulo">'+a.titulo+'</div><div class="m4-item-desc">'+a.desc+'</div></div></div>';
+        }).join('');
+        corpo += '<div class="m4-stit" style="margin-top:14px">Respostas modelo</div>';
+        corpo += p.scripts.map(function(s){return '<div class="m4-script"><div class="m4-sctx">'+s.ctx+'</div><div class="m4-sfala">'+s.fala+'</div></div>';}).join('');
+    }
+    document.getElementById('m4-passo-wrap').innerHTML =
+        '<div class="m4-card">'
+        + '<div class="m4-topo">'+m4TijoloCor(i+1)+'<div><div class="m4-num">Passo '+p.num+' de 4</div><div class="m4-ptit">'+p.titulo+'</div><div class="m4-psub">'+p.sub+'</div></div></div>'
+        + '<div class="m4-corpo"><div class="m4-texto">'+p.intro+'</div>'+corpo+'</div>'
+        + '</div>';
+    document.querySelectorAll('.m4-snav').forEach(function(b,idx){
+        b.classList.remove('ativo','feito');
+        if(idx<i)b.classList.add('feito');
+        if(idx===i)b.classList.add('ativo');
+    });
+    document.getElementById('m4-pb').style.width = Math.round(((i+1)/4)*100)+'%';
+    document.getElementById('m4-lbl').textContent = 'Passo '+(i+1)+' de 4';
+    document.getElementById('m4-ant').disabled = i===0;
+    var bp = document.getElementById('m4-prox');
+    if(i===3){bp.innerHTML='Estudo de caso &rarr;';bp.onclick=function(){m4Tela('caso');};}
+    else{bp.innerHTML='Pr&oacute;ximo &rarr;';bp.onclick=function(){m4Nav(1);};}
+}
+
+container.innerHTML = CSS + '<div class="m4">' + '<div id="m4-conteudo">' + '<div class="m4-badge">Relacionamento &middot; M&oacute;dulo 4</div>' + '<div class="m4-titulo">Escrita encantadora: Chat, WhatsApp e Mídias Sociais</div>' + '<div class="m4-intro">A Canopus conversa com o cliente no canal que ele preferir. Cada canal tem suas regras, seu ritmo e seu tom. Conhecer essas diferenças &eacute; o que separa um atendimento mediano de um atendimento que o cliente lembra &mdash; e recomenda.</div>' + '<div class="m4-pbar"><div class="m4-pbar-fill" id="m4-pb" style="width:25%"></div></div>' + '<div class="m4-snav-wrap">' + '<button class="m4-snav ativo" onclick="m4Ir(0)">1. Escrita</button>' + '<button class="m4-snav" onclick="m4Ir(1)">2. Chat</button>' + '<button class="m4-snav" onclick="m4Ir(2)">3. WhatsApp</button>' + '<button class="m4-snav" onclick="m4Ir(3)">4. Redes Sociais</button>' + '</div>' + '<div id="m4-passo-wrap"></div>' + '<div class="m4-nav">' + '<button class="m4-btn" id="m4-ant" onclick="m4Nav(-1)" disabled>&larr; Anterior</button>' + '<span class="m4-navlbl" id="m4-lbl">Passo 1 de 4</span>' + '<button class="m4-btn p" id="m4-prox">Pr&oacute;ximo &rarr;</button>' + '</div></div>' + '<div id="m4-caso" style="display:none">' + '<div class="m4-badge">Estudo de caso</div>' + '<div class="m4-titulo">Agora &eacute; com voc&ecirc;</div>' + '<div class="m4-intro">Voc&ecirc; aprendeu os 4 canais e os 7 pilares. Agora aplique na pr&aacute;tica.</div>' + '<div class="m4-caso">' + '<div style="font-size:11px;font-weight:700;color:#003349;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Situa&ccedil;&atilde;o real</div>' + '<div style="font-size:14px;color:#5a6b7c;line-height:1.7;margin-bottom:14px;font-style:italic;padding:11px 14px;background:#f0f4f4;border-radius:10px">Ana postou no Instagram da Canopus reclamando de um atraso na entrega das chaves. O post j&aacute; tem 14 coment&aacute;rios de outras pessoas pedindo explica&ccedil;&otilde;es. O que voc&ecirc; faz primeiro?</div>' + '<div style="font-size:14px;font-weight:600;color:#1a2b3c;margin-bottom:12px">Qual &eacute; a a&ccedil;&atilde;o certa?</div>' + '<div class="m4-opts">' + '<button class="m4-opt" onclick="m4Resp(0)"><span class="m4-ol">A</span>Ignorar o post por enquanto e resolver internamente antes de se posicionar publicamente.</button>' + '<button class="m4-opt" onclick="m4Resp(1)"><span class="m4-ol">B</span>Responder rapidamente com empatia, reconhecer a frustra&ccedil;&atilde;o e pedir contato privado para resolver.</button>' + '<button class="m4-opt" onclick="m4Resp(2)"><span class="m4-ol">C</span>Explicar detalhadamente o motivo do atraso nos coment&aacute;rios do post.</button>' + '<button class="m4-opt" onclick="m4Resp(3)"><span class="m4-ol">D</span>Encaminhar para o setor jur&iacute;dico antes de qualquer resposta.</button>' + '</div>' + '<div class="m4-fb" id="m4-fb"></div>' + '</div>' + '<div class="m4-nav">' + '<button class="m4-btn" onclick="m4Tela(\'conteudo\')">&larr; Voltar</button>' + '<button class="m4-btn p" id="m4-ir-enc" onclick="m4Tela(\'enc\')" disabled>Encerramento &rarr;</button>' + '</div></div>' + '<div id="m4-enc" style="display:none">' + '<div class="m4-enc">' + '<svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);pointer-events:none" width="130" height="130" viewBox="0 0 130 130"><circle id="m4-ring" cx="65" cy="65" r="48" fill="none" stroke="#2CD5C4" stroke-width="1" opacity=".3" style="stroke-dasharray:302;stroke-dashoffset:302;transition:stroke-dashoffset 1s .8s ease-out"/></svg>' + '<div class="m4-enc-logo" id="m4-enc-logo" style="position:relative;z-index:2">' + LOGO + '</div>' + '<div class="m4-enc-t1" id="m4-enc-t1" style="position:relative;z-index:2">Voc&ecirc; concluiu o m&oacute;dulo!</div>' + '<div class="m4-enc-t2" id="m4-enc-t2" style="position:relative;z-index:2">Agora voc&ecirc; sabe como escrever de forma encantadora em qualquer canal.</div>' + '<div class="m4-enc-pills" id="m4-enc-pills" style="position:relative;z-index:2">' + '<span class="m4-enc-pill">7 Pilares</span>' + '<span class="m4-enc-pill">Chat</span>' + '<span class="m4-enc-pill">WhatsApp</span>' + '<span class="m4-enc-pill">Redes Sociais</span>' + '</div>' + '<div class="m4-enc-btn" id="m4-enc-btn" style="position:relative;z-index:2">' + '<button class="m4-btn p" onclick="history.back()" style="border-radius:10px;padding:10px 28px;font-size:14px">Avan&ccedil;ar &rarr;</button>' + '</div>' + '<div id="m4-parts" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none"></div>' + '</div></div>' + '</div>';
+
+window.m4Atual = 0;
+window.m4QDone = false;
+window.m4Ir = function(i){ renderPasso4(i); };
+window.m4Nav = function(d){ var n=window.m4Atual+d; if(n>=0&&n<=3) renderPasso4(n); };
+window.m4Tela = function(nome){
+    ['conteudo','caso','enc'].forEach(function(t){ var el=document.getElementById('m4-'+t); if(el)el.style.display='none'; });
+    var el=document.getElementById('m4-'+nome); if(el)el.style.display='block';
+    if(nome==='enc') m4Animar();
+};
+
+var M4_RESPS = [
+    {c:false,f:'Ignorar &eacute; a pior op&ccedil;&atilde;o. O post j&aacute; tem 14 coment&aacute;rios &mdash; cada minuto sem resposta aumenta o alcance negativo e a percep&ccedil;&atilde;o de descaso.'},
+    {c:true, f:'Correto! A rapidez &eacute; essencial em m&iacute;dias sociais. A resposta p&uacute;blica com empatia mostra car&aacute;ter para todos que est&atilde;o vendo. Pedir o contato privado protege os dados e permite resolver com aten&ccedil;&atilde;o individual.'},
+    {c:false,f:'Detalhes operacionais em coment&aacute;rios p&uacute;blicos podem expor informa&ccedil;&otilde;es sens&iacute;veis e gerar mais perguntas. O certo &eacute; ser breve e empático em p&uacute;blico, detalhado em privado.'},
+    {c:false,f:'Encaminhar para o jur&iacute;dico sem qualquer resposta ao cliente &eacute; tratar uma reclama&ccedil;&atilde;o emocional como um processo burocrático. O cliente e os observadores percebem.'}
+];
+
+window.m4Resp = function(i){
+    if(window.m4QDone)return; window.m4QDone=true;
+    var r=M4_RESPS[i];
+    document.querySelectorAll('.m4-opt').forEach(function(el,idx){
+        el.disabled=true;
+        if(M4_RESPS[idx].c)el.classList.add('certa');
+        else if(idx===i&&!r.c)el.classList.add('errada');
+    });
+    var fb=document.getElementById('m4-fb');
+    fb.className='m4-fb show '+(r.c?'ok':'err');
+    fb.innerHTML=(r.c?'&#10003; ':'&#10007; ')+r.f;
+    if(r.c)document.getElementById('m4-ir-enc').disabled=false;
+};
+
+function m4Animar(){
+    var pc=document.getElementById('m4-parts');
+    if(pc){pc.innerHTML='';var cols=['#2CD5C4','#9FE1CB','rgba(255,255,255,0.8)'];
+    for(var i=0;i<22;i++){var p=document.createElement('div');var sz=Math.random()*4+2;var ang=Math.random()*Math.PI*2;var d=60+Math.random()*80;p.style.cssText='position:absolute;border-radius:50%;width:'+sz+'px;height:'+sz+'px;background:'+cols[Math.floor(Math.random()*cols.length)]+';top:calc(50% - '+sz/2+'px);left:calc(50% - '+sz/2+'px);animation:cnPart 2s ease-out forwards;animation-delay:'+Math.random()*.3+'s;--dx:'+Math.cos(ang)*d+'px;--dy:'+Math.sin(ang)*d+'px';pc.appendChild(p);}}
+    var lw=document.getElementById('m4-enc-logo'); if(lw)setTimeout(function(){lw.classList.add('vis');},150);
+    var rc=document.getElementById('m4-ring'); if(rc)setTimeout(function(){rc.style.strokeDashoffset='0';},800);
+    var t1=document.getElementById('m4-enc-t1'); if(t1)setTimeout(function(){t1.classList.add('vis');},1100);
+    var t2=document.getElementById('m4-enc-t2'); if(t2)setTimeout(function(){t2.classList.add('vis');},1300);
+    var pl=document.getElementById('m4-enc-pills'); if(pl)setTimeout(function(){pl.classList.add('vis');},1500);
+    var bt=document.getElementById('m4-enc-btn'); if(bt)setTimeout(function(){bt.classList.add('vis');},1800);
+}
+
+renderPasso4(0);
+}
+
+
 // ==================== ENHANCED NAVIGATE TO (hook for FAQ loading) ====================
 
 const originalNavigateTo = navigateTo;
@@ -8098,7 +8734,7 @@ var CSS = [
 '.cn-fade-in{animation:cnFadeIn .35s ease both}',
 '.cn-slide-up{animation:cnSlideUp .35s ease both}',
 '@keyframes cnFadeIn{from{opacity:0}to{opacity:1}}',
-'@keyframes cnSlideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}',
+'@keyframes cnSlideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}@keyframes cnPart{0%{opacity:0;transform:translate(0,0) scale(0)}20%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1)}}',
 '@media(max-width:600px){.cn-snav{font-size:11px;padding:5px 9px}.cn-titulo{font-size:17px}.cn-topo{padding:12px 14px}.cn-corpo{padding:14px 16px}}</style>'
 ].join('');
 
@@ -8161,58 +8797,7 @@ function cnRenderPasso(i) {
         +'</div></div>';
 }
 
-var HTML_BASE = CSS
-    + '<div class="cn-wrap">'
-    + '<div id="cn-conteudo">'
-    + '<div class="cn-badge">Relacionamento &middot; M&oacute;dulo 2</div>'
-    + '<div class="cn-titulo">Como atendemos na Canopus</div>'
-    + '<div class="cn-intro">Aqui na Canopus, atender bem n&atilde;o &eacute; talento, &eacute; m&eacute;todo. Todo atendimento segue 5 passos. Pensa numa obra: voc&ecirc; n&atilde;o coloca o acabamento antes da funda&ccedil;&atilde;o. No atendimento &eacute; igual.</div>'
-    + '<div class="cn-pbar"><div class="cn-pbar-fill" id="cn-pb" style="width:20%"></div></div>'
-    + '<div class="cn-snav-wrap">'
-    + '<button class="cn-snav ativo" onclick="cnIr(0)">1. Conectar</button>'
-    + '<button class="cn-snav" onclick="cnIr(1)">2. Compreender</button>'
-    + '<button class="cn-snav" onclick="cnIr(2)">3. Engajar</button>'
-    + '<button class="cn-snav" onclick="cnIr(3)">4. Confirmar</button>'
-    + '<button class="cn-snav" onclick="cnIr(4)">5. Entregar</button>'
-    + '</div>'
-    + '<div id="cn-passo"></div>'
-    + '<div class="cn-nav">'
-    + '<button class="cn-btn" id="cn-ant" onclick="cnNav(-1)" disabled>&larr; Anterior</button>'
-    + '<span class="cn-navlbl" id="cn-lbl">Passo 1 de 5</span>'
-    + '<button class="cn-btn p" id="cn-prox">Pr&oacute;ximo &rarr;</button>'
-    + '</div></div>'
-    + '<div id="cn-caso" style="display:none">'
-    + '<div class="cn-badge">Estudo de caso</div>'
-    + '<div class="cn-titulo">Agora &eacute; com voc&ecirc;</div>'
-    + '<div class="cn-intro">Voc&ecirc; aprendeu os 5 passos. Leia a situa&ccedil;&atilde;o abaixo e escolha como voc&ecirc; responderia.</div>'
-    + '<div class="cn-caso"><div class="cn-clbl">Situa&ccedil;&atilde;o real</div>'
-    + '<div class="cn-ctxt">Carlos liga irritado dizendo que o boleto do apartamento venceu ontem e o site n&atilde;o aceita o pagamento. Ele tentou tr&ecirc;s vezes e teme ter o nome negativado.</div>'
-    + '<div class="cn-cperg">Qual &eacute; a sua primeira resposta ao Carlos?</div>'
-    + '<div class="cn-opts">'
-    + '<button class="cn-opt" onclick="cnResp(0)"><span class="cn-ol">A</span>&#8220;Carlos, o sistema &agrave;s vezes apresenta instabilidades. O senhor pode pagar na ag&ecirc;ncia banc&aacute;ria.&#8221;</button>'
-    + '<button class="cn-opt" onclick="cnResp(1)"><span class="cn-ol">B</span>&#8220;Ol&aacute;, Carlos! J&aacute; vou cuidar da sua solicita&ccedil;&atilde;o. Entendo que voc&ecirc; tentou tr&ecirc;s vezes e n&atilde;o conseguiu &#8212; isso &eacute; frustrante. Me conta o que aparece na tela quando voc&ecirc; tenta pagar.&#8221;</button>'
-    + '<button class="cn-opt" onclick="cnResp(2)"><span class="cn-ol">C</span>&#8220;Carlos, esse assunto &eacute; com o setor financeiro. Vou transferir sua liga&ccedil;&atilde;o.&#8221;</button>'
-    + '<button class="cn-opt" onclick="cnResp(3)"><span class="cn-ol">D</span>&#8220;Bom dia! Como o boleto venceu ontem, j&aacute; h&aacute; juros. Posso gerar uma segunda via.&#8221;</button>'
-    + '</div><div class="cn-fb" id="cn-fb"></div></div>'
-    + '<div class="cn-nav">'
-    + '<button class="cn-btn" onclick="cnVoltarC()">&larr; Voltar</button>'
-    + '<button class="cn-btn p" id="cn-irchk" onclick="cnIrChk()" disabled>Checklist &rarr;</button>'
-    + '</div></div>'
-    + '<div id="cn-chk" style="display:none">'
-    + '<div class="cn-badge">Checklist pr&aacute;tico</div>'
-    + '<div class="cn-titulo">Antes de encerrar cada atendimento</div>'
-    + '<div class="cn-intro">Nos primeiros dias pode parecer trabalhoso, mas com o tempo esses 5 passos viram autom&aacute;tico &#8212; e o cliente percebe a diferen&ccedil;a.</div>'
-    + '<div class="cn-chklist">'
-    + '<div class="cn-chk" onclick="cnMc(0)"><div class="cn-chkbox" id="cnck0"></div><div class="cn-chk-txt"><b>Conectar.</b> Cumprimentei o cliente pelo nome com simpatia e sinalizei que j&aacute; estou cuidando da demanda dele.</div></div>'
-    + '<div class="cn-chk" onclick="cnMc(1)"><div class="cn-chkbox" id="cnck1"></div><div class="cn-chk-txt"><b>Compreender.</b> Deixei o cliente falar at&eacute; o fim, parafraseei o que entendi e confirmei antes de partir para a solu&ccedil;&atilde;o.</div></div>'
-    + '<div class="cn-chk" onclick="cnMc(2)"><div class="cn-chkbox" id="cnck2"></div><div class="cn-chk-txt"><b>Engajar.</b> Me comprometi com o que vou fazer, disse o prazo e transmiti seguran&ccedil;a ao cliente.</div></div>'
-    + '<div class="cn-chk" onclick="cnMc(3)"><div class="cn-chkbox" id="cnck3"></div><div class="cn-chk-txt"><b>Confirmar.</b> Perguntei se ficou alguma d&uacute;vida antes de encerrar e n&atilde;o assumi que estava tudo certo.</div></div>'
-    + '<div class="cn-chk" onclick="cnMc(4)"><div class="cn-chkbox" id="cnck4"></div><div class="cn-chk-txt"><b>Entregar.</b> Finalizei com calor humano, chamei o cliente pelo nome e reafirmei que estamos &agrave; disposi&ccedil;&atilde;o.</div></div>'
-    + '<div class="cn-chk" onclick="cnMc(5)"><div class="cn-chkbox" id="cnck5"></div><div class="cn-chk-txt"><b>Postura Canopus.</b> Mantive tom amig&aacute;vel e profissional o tempo todo, pr&oacute;ximo sem ser informal demais e nunca rob&oacute;tico.</div></div>'
-    + '</div>'
-    + '<div class="cn-chkpct" id="cn-chkpct">0 de 6 itens</div>'
-    + '<div class="cn-nav"><button class="cn-btn" onclick="cnVoltarChk()">&larr; Voltar</button></div>'
-    + '</div></div>';
+var HTML_BASE = CSS + '<div class="cn-wrap">' + '<div id="cn-conteudo">' + '<div class="cn-badge">Relacionamento &middot; M&oacute;dulo 2</div>' + '<div class="cn-titulo">Como atendemos na Canopus</div>' + '<div class="cn-intro">Aqui na Canopus, atender bem n&atilde;o &eacute; talento, &eacute; m&eacute;todo. Todo atendimento segue 5 passos. Pensa numa obra: voc&ecirc; n&atilde;o coloca o acabamento antes da funda&ccedil;&atilde;o. No atendimento &eacute; igual.</div>' + '<div class="cn-pbar"><div class="cn-pbar-fill" id="cn-pb" style="width:20%"></div></div>' + '<div class="cn-snav-wrap">' + '<button class="cn-snav ativo" onclick="cnIr(0)">1. Conectar</button>' + '<button class="cn-snav" onclick="cnIr(1)">2. Compreender</button>' + '<button class="cn-snav" onclick="cnIr(2)">3. Engajar</button>' + '<button class="cn-snav" onclick="cnIr(3)">4. Confirmar</button>' + '<button class="cn-snav" onclick="cnIr(4)">5. Entregar</button>' + '</div>' + '<div id="cn-passo"></div>' + '<div class="cn-nav">' + '<button class="cn-btn" id="cn-ant" onclick="cnNav(-1)" disabled>&larr; Anterior</button>' + '<span class="cn-navlbl" id="cn-lbl">Passo 1 de 5</span>' + '<button class="cn-btn p" id="cn-prox">Pr&oacute;ximo &rarr;</button>' + '</div></div>' + '<div id="cn-caso" style="display:none">' + '<div class="cn-badge">Estudo de caso</div>' + '<div class="cn-titulo">Agora &eacute; com voc&ecirc;</div>' + '<div class="cn-intro">Voc&ecirc; aprendeu os 5 passos. Leia a situa&ccedil;&atilde;o abaixo e escolha como voc&ecirc; responderia.</div>' + '<div class="cn-caso"><div class="cn-clbl">Situa&ccedil;&atilde;o real</div>' + '<div class="cn-ctxt">Carlos liga irritado dizendo que o boleto do apartamento venceu ontem e o site n&atilde;o aceita o pagamento. Ele tentou tr&ecirc;s vezes e teme ter o nome negativado.</div>' + '<div class="cn-cperg">Qual &eacute; a sua primeira resposta ao Carlos?</div>' + '<div class="cn-opts">' + '<button class="cn-opt" onclick="cnResp(0)"><span class="cn-ol">A</span>&#8220;Carlos, o sistema &agrave;s vezes apresenta instabilidades. O senhor pode pagar na ag&ecirc;ncia banc&aacute;ria.&#8221;</button>' + '<button class="cn-opt" onclick="cnResp(1)"><span class="cn-ol">B</span>&#8220;Ol&aacute;, Carlos! J&aacute; vou cuidar da sua solicita&ccedil;&atilde;o. Entendo que voc&ecirc; tentou tr&ecirc;s vezes e n&atilde;o conseguiu &#8212; isso &eacute; frustrante. Me conta o que aparece na tela quando voc&ecirc; tenta pagar.&#8221;</button>' + '<button class="cn-opt" onclick="cnResp(2)"><span class="cn-ol">C</span>&#8220;Carlos, esse assunto &eacute; com o setor financeiro. Vou transferir sua liga&ccedil;&atilde;o.&#8221;</button>' + '<button class="cn-opt" onclick="cnResp(3)"><span class="cn-ol">D</span>&#8220;Bom dia! Como o boleto venceu ontem, j&aacute; h&aacute; juros. Posso gerar uma segunda via.&#8221;</button>' + '</div><div class="cn-fb" id="cn-fb"></div></div>' + '<div class="cn-nav">' + '<button class="cn-btn" onclick="cnVoltarC()">&larr; Voltar</button>' + '<button class="cn-btn p" id="cn-irchk" onclick="cnIrChk()" disabled>Encerramento &rarr;</button>' + '</div></div>' + '<div id="cn-conclusao" style="display:none">' + '<div style="text-align:center;padding:2.5rem 1.5rem;background:var(--azul-escuro);border-radius:16px;position:relative;overflow:hidden">' + '<div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(44,213,196,0.06)"></div>' + '<div id="cn-logo-wrap" style="opacity:0;transform:scale(0.3);transition:opacity .7s cubic-bezier(.34,1.56,.64,1),transform .7s cubic-bezier(.34,1.56,.64,1);margin-bottom:1rem;display:inline-block;position:relative;z-index:2">' + '<svg width="72" height="72" viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lgT" x1="0" y1="0" x2="1" y2="0.4"><stop offset="0%" stop-color="#2CD5C4"/><stop offset="100%" stop-color="#00B8D4"/></linearGradient><linearGradient id="lgM" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#18C8C0"/><stop offset="100%" stop-color="#0090A8"/></linearGradient><linearGradient id="lgB" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0%" stop-color="#10BDB8"/><stop offset="100%" stop-color="#007A90"/></linearGradient></defs><polygon points="22,36 78,36 92,18 36,18" fill="url(#lgT)"/><rect x="22" y="36" width="18" height="56" fill="url(#lgM)"/><rect x="40" y="36" width="38" height="38" fill="url(#lgM)"/><rect x="52" y="36" width="26" height="26" fill="#003349"/><circle cx="67" cy="44" r="10" fill="#1ABED0"/><circle cx="67" cy="44" r="5.5" fill="#003349" opacity="0.75"/><polygon points="40,74 72,74 86,92 40,92" fill="url(#lgB)"/></svg>' + '</svg>' + '<div id="cn-c-t1" style="font-size:20px;font-weight:600;color:#fff;margin-bottom:.4rem;opacity:0;transform:translateY(10px);transition:all .5s 1.1s;position:relative;z-index:2">Voc&ecirc; concluiu o m&oacute;dulo!</div>' + '<div id="cn-c-t2" style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.7;margin-bottom:1.2rem;opacity:0;transform:translateY(8px);transition:all .5s 1.3s;position:relative;z-index:2">Seu progresso foi registrado.<br>Continue avan&ccedil;ando na sua trilha Canopus.</div>' + '<div id="cn-c-pills" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:1.2rem;opacity:0;transition:all .5s 1.5s;position:relative;z-index:2">' + '<span style="background:rgba(44,213,196,0.12);border:0.5px solid rgba(44,213,196,0.3);border-radius:20px;padding:4px 12px;font-size:11px;color:#2CD5C4">Conectar</span>' + '<span style="background:rgba(44,213,196,0.12);border:0.5px solid rgba(44,213,196,0.3);border-radius:20px;padding:4px 12px;font-size:11px;color:#2CD5C4">Compreender</span>' + '<span style="background:rgba(44,213,196,0.12);border:0.5px solid rgba(44,213,196,0.3);border-radius:20px;padding:4px 12px;font-size:11px;color:#2CD5C4">Engajar</span>' + '<span style="background:rgba(44,213,196,0.12);border:0.5px solid rgba(44,213,196,0.3);border-radius:20px;padding:4px 12px;font-size:11px;color:#2CD5C4">Confirmar</span>' + '<span style="background:rgba(44,213,196,0.12);border:0.5px solid rgba(44,213,196,0.3);border-radius:20px;padding:4px 12px;font-size:11px;color:#2CD5C4">Entregar</span>' + '</div>' + '<div id="cn-c-btn" style="opacity:0;transform:translateY(8px);transition:all .5s 1.8s;position:relative;z-index:2">' + '<button onclick="history.back()" class="cn-btn p" style="border-radius:10px;padding:10px 28px;font-size:14px">Avan&ccedil;ar &rarr;</button>' + '</div>' + '<div id="cn-particles" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none"></div>' + '</div></div>' + '</div></div>';
 
 container.innerHTML = HTML_BASE;
 
@@ -8233,8 +8818,39 @@ window.cnVoltarC = function(){
 };
 window.cnIrChk = function(){
     document.getElementById('cn-caso').style.display='none';
-    document.getElementById('cn-chk').style.display='block';
+    var conclusao = document.getElementById('cn-conclusao');
+    if(conclusao) {
+        conclusao.style.display='block';
+        cnAnimarConclusao();
+    }
 };
+function cnAnimarConclusao() {
+    var pc = document.getElementById('cn-particles');
+    if(pc) {
+        pc.innerHTML = '';
+        var cols = ['#2CD5C4','#9FE1CB','rgba(255,255,255,0.8)'];
+        for(var i=0;i<24;i++){
+            var p = document.createElement('div');
+            var sz = Math.random()*4+2;
+            var ang = Math.random()*Math.PI*2;
+            var d = 60+Math.random()*80;
+            p.style.cssText = 'position:absolute;border-radius:50%;width:'+sz+'px;height:'+sz+'px;background:'+cols[Math.floor(Math.random()*cols.length)]+';top:calc(50% - '+sz/2+'px);left:calc(50% - '+sz/2+'px);animation:cnPart 2s ease-out forwards;animation-delay:'+Math.random()*.3+'s;--dx:'+Math.cos(ang)*d+'px;--dy:'+Math.sin(ang)*d+'px';
+            pc.appendChild(p);
+        }
+    }
+    var lw = document.getElementById('cn-logo-wrap');
+    if(lw){ setTimeout(function(){ lw.style.opacity='1'; lw.style.transform='scale(1)'; },150); }
+    var rc = document.getElementById('cn-ring-c');
+    if(rc){ setTimeout(function(){ rc.style.strokeDashoffset='0'; },800); }
+    var t1 = document.getElementById('cn-c-t1');
+    if(t1){ setTimeout(function(){ t1.style.opacity='1'; t1.style.transform='translateY(0)'; },1100); }
+    var t2 = document.getElementById('cn-c-t2');
+    if(t2){ setTimeout(function(){ t2.style.opacity='1'; t2.style.transform='translateY(0)'; },1300); }
+    var pl = document.getElementById('cn-c-pills');
+    if(pl){ setTimeout(function(){ pl.style.opacity='1'; },1500); }
+    var bt = document.getElementById('cn-c-btn');
+    if(bt){ setTimeout(function(){ bt.style.opacity='1'; bt.style.transform='translateY(0)'; },1800); }
+}
 window.cnVoltarChk = function(){
     document.getElementById('cn-chk').style.display='none';
     document.getElementById('cn-caso').style.display='block';
@@ -8274,5 +8890,5 @@ cnRenderPasso(0);
 
 </script>
 
-</body>
+<div id="mobile-overlay" onclick="closeMobileSidebar()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:299"></div><style>#mobile-overlay.show{display:block!important}</style></body>
 </html>
